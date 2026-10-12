@@ -1,0 +1,484 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Valley Residents Atlas</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@500;700&family=Atkinson+Hyperlegible:wght@400;700&display=swap">
+<style>
+/* Layout: cozy farm-game screen. Parchment menus in carved wood frames over a dusk-blue backdrop; detailed pixel map canvas with sign badges and on-map popups; keyed list beside it (below on phones). */
+:root{
+  --bg:#1e3a4c; --bg2:#244659; --paper:#f3dcaa; --paper2:#e9cb8e; --ink:#4a2a12; --ink-soft:#7a5230;
+  --wood:#7b4a24; --wood-hi:#c98a4e; --wood-lo:#3e2210; --gold:#ffd23f; --gold-ink:#3a2600; --pin:#c8392f; --pin-hi:#e0574a; --leaf:#4f8f34;
+  --display:"Pixelify Sans","Courier New",monospace;
+  --body:"Atkinson Hyperlegible",system-ui,-apple-system,"Segoe UI",sans-serif;
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.45;
+  background-image:linear-gradient(45deg,var(--bg2) 25%,transparent 25%,transparent 75%,var(--bg2) 75%),linear-gradient(45deg,var(--bg2) 25%,transparent 25%,transparent 75%,var(--bg2) 75%);
+  background-size:32px 32px;background-position:0 0,16px 16px}
+.wrap{max-width:1220px;margin:0 auto;padding-inline:16px;padding-block:22px 44px;display:grid;gap:18px}
+.box{background:var(--paper);border:6px solid var(--wood);box-shadow:inset 0 0 0 3px var(--paper2),0 0 0 3px var(--wood-lo),0 0 0 6px var(--wood-hi),8px 10px 0 6px rgba(0,0,0,.35);padding:14px;border-radius:4px}
+h1{font-family:var(--display);font-weight:700;font-size:clamp(1.8rem,4.6vw,2.8rem);margin:0;color:var(--leaf);text-shadow:3px 3px 0 #1f3a12,-1px -1px 0 #fff3c4;letter-spacing:.02em;text-wrap:balance}
+.lede{margin:6px 0 0;color:var(--ink);max-width:62ch}
+.controls{display:flex;flex-wrap:wrap;gap:12px;align-items:center}
+.btn{font:700 1rem var(--display);color:var(--ink);background:var(--paper);border:4px solid var(--wood);box-shadow:inset 0 -4px 0 var(--paper2),4px 4px 0 var(--wood-lo);padding:7px 13px;cursor:pointer;border-radius:3px}
+.btn[aria-selected="true"],.btn[aria-pressed="true"]{background:var(--gold);color:var(--gold-ink);box-shadow:inset 0 -4px 0 #d8a91e,4px 4px 0 var(--wood-lo)}
+.btn:active{transform:translate(3px,3px);box-shadow:1px 1px 0 var(--wood-lo)}
+#rom[aria-pressed="true"]{background:var(--pin);color:#fff;box-shadow:inset 0 -4px 0 #8e2620,4px 4px 0 var(--wood-lo)}
+#night[aria-pressed="true"]{background:#2b2f6b;color:#fff3c4;box-shadow:inset 0 -4px 0 #1a1d48,4px 4px 0 var(--wood-lo)}
+#q{flex:1 1 220px;min-width:0;font:inherit;font-size:16px;padding:6px 10px;border:4px solid var(--wood);background:var(--paper);color:var(--ink);box-shadow:inset 3px 3px 0 var(--paper2);border-radius:3px}
+#q::placeholder{color:var(--ink-soft)}
+button:focus-visible,#q:focus-visible,.item:focus-visible,.badge:focus-visible{outline:3px solid var(--gold);outline-offset:3px}
+.count{color:#fff3c4;text-shadow:2px 2px 0 #0e1d27}
+.layout{display:grid;gap:22px;grid-template-columns:minmax(0,1.8fr) minmax(0,1fr);align-items:start}
+.mapframe{padding:6px;overflow-x:auto}
+.stage{position:relative;min-width:640px;aspect-ratio:400/310;max-width:100%}
+.stage canvas{position:absolute;inset:0;width:100%;height:100%;image-rendering:pixelated;image-rendering:crisp-edges}
+.tag{position:absolute;transform:translate(-50%,-50%);font:500 13px var(--display);color:#fff;white-space:nowrap;pointer-events:none;
+  text-shadow:2px 0 0 #2a1a0c,-2px 0 0 #2a1a0c,0 2px 0 #2a1a0c,0 -2px 0 #2a1a0c}
+.tag.big{font:700 14px var(--display);color:var(--ink);text-shadow:none;background:var(--paper);border:3px solid var(--wood);box-shadow:2px 3px 0 var(--wood-lo);padding:1px 7px}
+.badge{position:absolute;transform:translate(-50%,-50%);min-width:24px;height:22px;padding:0 4px;font:700 13px var(--display);
+  background:var(--paper);color:var(--ink);border:3px solid var(--wood);box-shadow:2px 2px 0 var(--wood-lo);cursor:pointer;display:grid;place-items:center;font-variant-numeric:tabular-nums;border-radius:2px}
+.badge::after{content:"";position:absolute;left:50%;top:100%;width:3px;height:7px;background:var(--wood-lo);transform:translateX(-50%)}
+.badge.on{background:var(--gold);color:var(--gold-ink);z-index:4;transform:translate(-50%,-50%) scale(1.25)}
+.badge.dim{opacity:.25}
+.pop{position:absolute;z-index:6;width:260px;max-height:64%;overflow:auto;background:var(--paper);border:5px solid var(--wood);
+  box-shadow:inset 0 0 0 3px var(--paper2),0 0 0 2px var(--wood-lo),5px 6px 0 rgba(0,0,0,.4);padding:10px 12px;font-size:14px;border-radius:3px}
+.pop h3{font:700 16px var(--display);color:var(--leaf);margin:0 22px 2px 0}
+.pop .x{position:absolute;top:4px;right:6px;background:none;border:0;color:var(--ink);font:700 20px var(--display);cursor:pointer}
+.pop .res{margin-top:6px;padding-top:6px;border-top:2px dashed var(--ink-soft)}
+.pop .res b{font:500 15px var(--display);color:var(--ink)}
+.pop .res .gl{color:var(--ink-soft);font-size:13px;line-height:1.4}
+.pop .r::before,.p.r::before{content:"\2665 ";color:var(--pin)}
+.where{color:var(--ink-soft);font-size:14px;display:block;margin-top:1px}
+.list{display:grid;gap:7px;max-height:80vh;overflow:auto;padding:4px}
+.item{display:grid;grid-template-columns:30px 1fr;gap:10px;padding:8px;cursor:pointer;border:3px solid var(--paper2);background:#f8e8c3;border-radius:3px}
+.item.on{border-color:var(--wood);background:#fff1cf}
+.item.dim{opacity:.35}
+.num{width:28px;height:26px;background:var(--wood);color:var(--paper);display:grid;place-items:center;font:700 14px var(--display);font-variant-numeric:tabular-nums;border-radius:2px}
+.item b{font:700 15px var(--display);color:var(--ink);display:block}
+.people{display:flex;flex-wrap:wrap;gap:5px;margin-top:5px}
+.p{font-size:14px;font-weight:700;padding:1px 7px;background:var(--paper);border:2px solid var(--paper2)}
+.p.u::after{content:" *";color:var(--pin)}
+.p.hit{background:var(--gold);color:var(--gold-ink);border-color:#d8a91e}
+.g{padding:3px 0 3px 9px;border-left:3px solid var(--wood-hi);margin-top:6px;font-size:14px;line-height:1.45;color:var(--ink)}
+.g span{color:var(--leaf);font-weight:700;margin-right:4px}
+.g i,.pop i{color:var(--ink-soft)}
+.tag.sm{font-size:11px}
+.note{margin:0;color:var(--ink);max-width:80ch}
+.note a{color:var(--leaf)}
+@media (max-width:860px){.layout{grid-template-columns:1fr}.list{max-height:none}}
+@media (prefers-reduced-motion:no-preference){.badge{transition:transform .12s}}
+</style>
+
+<div class="wrap">
+  <header class="box">
+    <h1>Valley Residents Atlas</h1>
+    <p class="lede">Every home in Ridgeside Village, Pelican Town and the Expanded valley, with what each villager loves. Tap a sign to see who lives there and what they love.</p>
+  </header>
+
+  <div class="controls">
+    <button class="btn" role="tab" aria-selected="true" data-map="rsv">Ridgeside</button>
+    <button class="btn" role="tab" aria-selected="false" data-map="town">Pelican Town</button>
+    <button class="btn" role="tab" aria-selected="false" data-map="sve">The Valley (Expanded)</button>
+    <button class="btn" id="rom" aria-pressed="false">&#9829; Romanceable</button>
+    <button class="btn" id="night" aria-pressed="false">&#9790; Night</button>
+    <input id="q" type="search" placeholder="Villager or gift, e.g. Spaghetti" aria-label="Find a villager or gift">
+    <span class="count" id="count"></span>
+  </div>
+
+  <div class="layout">
+    <div class="box mapframe"><div class="stage" id="stage"><canvas id="cv" width="400" height="310" aria-label="Pixel map of resident homes"></canvas></div></div>
+    <div class="box"><div class="list" id="list"></div></div>
+  </div>
+  <div class="box" style="display:grid;gap:8px">
+    <p class="note" id="foot"></p>
+    <p class="note">Positions come from the wikis' location notes ("south of the Village Office"), so the map is approximate. For exact spots, see the official maps on the <a href="https://ridgesidevillage.wiki.gg/wiki/Ridgeside_Village" target="_blank" rel="noopener">Ridgeside wiki</a> and the <a href="https://stardewvalleyexpanded.wiki.gg/wiki/Locations" target="_blank" rel="noopener">Expanded wiki</a>. <span class="p u">Name</span> means the home is from general knowledge and was not checked against the wiki.</p>
+  </div>
+</div>
+
+<script>
+const ROM={rsv:["Ian","Jeric","June","Kenneth","Philip","Sean","Shiro","Alissa","Blair","Corine","Flor","Kiarra","Maddie","Ysabelle","Anton","Bryle","Daia","Faye","Irene","Jio","Paula","Zayne"],
+ sve:["Claire","Lance","Magnus","Olivia","Scarlett","Sophia","Victor"]};
+const SVEG={"Andy":"Baked Berry Oatmeal, Glazed Butterfish, Mixed Berry Pie, Stuffed Persimmon, Butterfish, Blackberry Cobbler, Farmer's Lunch, Beer, Mead, Pale Ale","Olivia":"Fish Dumpling, Aged Blue Moon Wine, Blue Moon Wine, Goldenrod, Wine, Chocolate Cake, Pink Cake, Golden Mask, Golden Relic","Sophia":"Candy, Flower Cookie, Mixed Berry Pie, Vegan Cone, Grampleton Orange Chicken, Puppyfish, Fairy Rose, Fairy Box, Fairy Stone","Claire":"Bruschetta, Glazed Butterfish, Mixed Berry Pie, Nectarine Fruit Bread, Energy Tonic, Green Tea, Apricot, Sunflower, Ocean Stone","Victor":"Battery Pack, Duck Feather, Spaghetti, Blue Moon Wine","Lance":"Monster Mushroom, Pineapple Custard Crepe, Tropical Curry","Magnus":"Void Delight, Void Salmon Sushi, Solar Essence, Void Essence","Susan":"Blueberry Tart, Blackberry Cobbler, Pancakes, Cookie","Henchman":"Void Mayonnaise, Void Salmon Sushi, Void Delight","Scarlett":"Grampleton Orange Chicken, Large Goat Milk, Baked Berry Oatmeal","Apples":"Starfruit, Raisins, Stardrop"};
+const GNOTE={"Gunther":"Wiki lists only the game-wide loves","Morgan":"Wiki lists only the game-wide loves","Morris":"Wiki lists only the game-wide loves","Martin":"Wiki lists only the game-wide loves","Marlon":"Wiki lists only the game-wide loves","Camilla":"Can't be gifted","Isaac":"Can't be gifted","Alesia":"Can't be gifted","Bear":"Can't be gifted","Gil":"Can't be gifted","Sandy":"Vanilla villager; see the base game wiki"};
+const GIFTS={"Ian":"Ice Cream, Fish Taco, Eggplant, Strawberry, Autumnal Serenity","Jeric":"Pomegranate, Spaghetti, Duck Feather, Blue Jazz, Winter Night Feast","June":"Spicy Eel, Triple Shot Espresso, Coffee Bean, Apple, Bone Flute, Wild Apple Juice","Kenneth":"Pizza, Strawberry, Refined Quartz, Slate, Summer Mountain Blessing","Philip":"Trout Soup, Earth Crystal, Radish, Tulip, Springtime Primetime","Sean":"Green Bean, Holiday Ice, Highland Butterwort, Summit Snowbell, Springtime Primetime","Shiro":"Crystal Fruit, Survival Burger, Fruit Salad, Red Mushroom, Winter Night Feast","Alissa":"Pancakes, Pumpkin, Emerald, Ridgeside Clementine, Springtime Primetime","Blair":"Carp, Fried Mountain Greens, Mead, Cherry Pluot, Pillowsoft Cheezy Sandwich, Winter Night Feast","Corine":"Tulip, Sashimi, Salad, Honey, Autumnal Serenity","Flor":"Triple Shot Espresso, Ruby, Ice Cream, Autumn Drop Berry, Summer Mountain Blessing","Kiarra":"Spaghetti, Super Meal, Jumpy Coffee Cake, Desert Tangelo, Summer Mountain Blessing","Maddie":"Salad, Blackberry Cobbler, Coral, Nautilus Fossil, Autumnal Serenity","Ysabelle":"Diamond, Maki Roll, Starfruit, Peach, Springtime Primetime","Anton":"Mead, Spaghetti, Shrimp Cocktail, Wine, Ridge Azorean Flower, Springtime Primetime","Bryle":"Spaghetti, Duck Feather, Fairy Stone, Survival Burger","Daia":"Mountain Mistbloom, Salad, Ruby, Apricot Juice, Ember Blood Lime","Faye":"Cranberries, Forest Amancay, Ridgeside Clementine, Cherry Berry Shakey, Sweet Cranberry Cheesecake, Summer Mountain Blessing","Irene":"Ridge Wild Apple, Mountain Plumcot, Highland Jostaberry, Strawberry Lover Pie, Pillowsoft Cheezy Sandwich, Winter Night Feast","Jio":"Lava Lily, Kedi Delight, Elven Comb, Fluffy Apple Crumble, Ridgeside Clementine, Clementine Cake, Clementine Juice","Paula":"Desert Tangelo, Arugula Roll, Ridgeside Shaketini, Crunchy Bagel, Ridge Azorean Flower, Autumnal Serenity","Zayne":"Amethyst, Dinosaur Egg, Pink Cake, Desert Tangelo, Autumnal Serenity, Ginger Rangpur Meringue","Bert":"Bean Hotpot, Gold Bar, Frost Clump Berry, Springtime Primetime, Snow Bowl Surprise","Carmen":"Any fish, Snowball Slurpee, Wild Apple Juice, Ridge Apple Cake, Autumnal Serenity","Ezekiel":"Baked Fish, Iridium Ore, Cauliflower, Springtime Primetime, Anchovy","Freddie":"Pumpkin Soup, Bok Choy, Earth Crystal, Leek, Winter Night Feast","Kimpoi":"Bok Choy, Autumn Dew Drop Juice, Honey Glazed Salad, Pink Frosted Sprinkled Doughnut, Pumpkin Darling Slice, Sierra Wintergreen, Autumnal Serenity","Kiwi":"Starfruit, Plum Pudding","Lenny":"Autumn's Bounty, Hot Pepper, Snow Yam, Hematite, Summer Mountain Blessing","Lola":"Red Plate, Ruby, Survival Burger, Mayonnaise, Summer Mountain Blessing","Lorenzo":"Forage Souffle, Arugula Roll, Spaghetti, Ridge Azorean Flower, Sweet Cranberry Cheesecake, Autumnal Serenity","Maive":"Cherry Berry Shakey, Honey Glazed Salad, Zesty Tuna, Springtime Primetime, Tropic Mango Cake","Malaya":"Arugula Roll, Sierra Wintergreen, Highland Ice Cream, Lullaby Carp, Northern Limequat, Summer Mountain Blessing","Mr. Aguar":"Aquamarine, Fried Eel, Dinosaur Egg, Glass Shards, Summer Mountain Blessing","Naomi":"Lava Lily, Sierra Wintergreen, Kedi Delight, Ridge Mosaic Cake, Cherry Berry Shakey, Arugula Roll, Springtime Primetime","Olga":"Wine, Salmon Dinner, Poppy, Highland Blueberry Pie, Summer Mountain Blessing","Pika":"Shrimp Cocktail, Emerald, Pickles, Juice, Winter Night Feast","Richard":"Diamond, Tom Kha Soup, Wine, Plum Pudding, Autumnal Serenity","Shanice":"Fiddlehead Risotto, Strawberry Lover Pie, Clementine Cake, Forest Amancay, Winter Night Feast","Sonny":"Bruschetta, Goat Cheese, Ridge Cherry, Highland Revani, Springtime Primetime","Torts":"Ancient Fruit, Dinosaur Egg, Foxbloom, Golden Pumpkin, Prismatic Shard, Radioactive Bar","Ariah":"Coffee Bean, Cherry Pluot, Highland Jostaberry, Mountain Plumcot, Cherry Berry Shakey, Clementine Juice, Sweet Cranberry Cheesecake, Autumnal Serenity","Keahi":"Cookie, Spaghetti, Clam, Cranberries, Winter Night Feast","Louie":"Kek's Style Shortcake, Forest Halva, Fried Fish a la Ridge, Highland Butterwort, Violet Devil's Claw, Winter Night Feast","Trinnie":"Ice Cream, Pancakes, Pink Cake, Ridge Cherry, Springtime Primetime","Yuuma":"Fried Egg, Apple, Grape, Bread, Autumnal Serenity"};
+const base=n=>n.replace(/ \(.*\)$/,"");
+Object.assign(GIFTS,SVEG);
+const gl=n=>(GIFTS[base(n)]||"").split(", ").filter(Boolean);
+const VANG={"Alex":"Complete Breakfast, Jack Be Nimble Jack Be Thick, Salmon Dinner","Elliott":"Crab Cakes, Duck Feather, Lobster, Pomegranate, Squid Ink, Tom Kha Soup","Harvey":"Coffee, Pickles, Super Meal, Truffle Oil, Wine","Sam":"Cactus Fruit, Maple Bar, Pizza, Tigerseye","Sebastian":"Frog Egg, Frozen Tear, Obsidian, Pumpkin Soup, Sashimi, Void Egg","Shane":"Beer, Hot Pepper, Pepper Poppers, Pizza","Abigail":"Amethyst, Banana Pudding, Blackberry Cobbler, Chocolate Cake, Monster Compendium, Pufferfish, Pumpkin, Spicy Eel","Emily":"Amethyst, Aquamarine, Cloth, Emerald, Jade, Parrot Egg, Ruby, Survival Burger, Topaz, Wool","Haley":"Coconut, Fruit Salad, Pink Cake, Sunflower","Leah":"Goat Cheese, Poppyseed Muffin, Salad, Stir Fry, Truffle, Vegetable Medley, Wine","Maru":"Battery Pack, Cauliflower, Cheese Cauliflower, Diamond, Dwarf Gadget, Gold Bar, Iridium Bar, Miner's Treat, Pepper Poppers, Radioactive Bar, Rhubarb Pie, Strawberry","Penny":"Books, Diamond, Emerald, Melon, Poppy, Poppyseed Muffin, Red Plate, Roots Platter, Sandfish, Tom Kha Soup","Caroline":"Fish Taco, Green Tea, Summer Spangle, Tropical Curry","Clint":"Amethyst, Aquamarine, Artichoke Dip, Emerald, Fiddlehead Risotto, Gold Bar, Iridium Bar, Jade, Omni Geode, Ruby, Topaz","Demetrius":"Bean Hotpot, Ice Cream, Rice Pudding, Strawberry","Evelyn":"Beet, Chocolate Cake, Diamond, Fairy Rose, Raisins, Stuffing, Tulip","George":"Fried Mushroom, Leek","Gus":"Escargot, Fish Taco, Orange, Tropical Curry","Jas":"Ancient Doll, Fairy Box, Fairy Rose, Pink Cake, Plum Pudding, Strange Doll","Jodi":"Chocolate Cake, Crispy Bass, Diamond, Eggplant Parmesan, Fried Eel, Pancakes, Rhubarb Pie, Vegetable Medley","Kent":"Fiddlehead Risotto, Roasted Hazelnuts","Krobus":"Diamond, Iridium Bar, Monster Compendium, Monster Musk, Pumpkin, Void Egg, Void Mayonnaise, Wild Horseradish","Lewis":"Autumn's Bounty, Glazed Yams, Green Tea, Hot Pepper, Vegetable Medley","Linus":"Blueberry Tart, Cactus Fruit, Coconut, Dish O' The Sea, The Alleyway Buffet, Yam","Marnie":"Diamond, Farmer's Lunch, Pink Cake, Pumpkin Pie","Pam":"Beer, Cactus Fruit, Glazed Yams, Mead, Pale Ale, Parsnip, Parsnip Soup, Piña Colada","Pierre":"Fried Calamari, Price Catalogue","Robin":"Goat Cheese, Peach, Spaghetti, Woody's Secret","Sandy":"Crocus, Daffodil, Mango Sticky Rice, Sweet Pea","Vincent":"Cranberry Candy, Frog Egg, Ginger Ale, Grape, Pink Cake, Snail","Willy":"Catfish, Diamond, Gold Bar, Iridium Bar, Jewels Of The Sea, Mead, Octopus, Pumpkin, Sea Cucumber, Sturgeon, The Art O' Crabbing","Dwarf":"Amethyst, Aquamarine, Emerald, Jade, Lava Eel, Lemon Stone, Omni Geode, Ruby, Topaz"};
+Object.assign(GIFTS,VANG);delete GNOTE.Sandy;
+ROM.town=["Alex","Harvey","Sam","Abigail","Emily","Haley","Penny","Olivia","Victor"];
+ROM.sve=ROM.sve.concat(["Elliott","Leah","Maru","Sebastian","Shane"]);
+/* All coordinates are canvas pixels on a 400 x 310 map. x,y = bottom center of a building (its doorstep). */
+const DATA={
+ rsv:{
+  foot:"Ridgeside sits up the mountain, reached by the cable car northeast of the Bus Stop. Spirit and special characters (Belinda, Helen, Raeriyala, Sari, Lil Acorn, Undreya, Pipo) have no village home on the wiki. Bliss moves into the Ninja House after the Spirit Realm questline, Naomi returns in Year 2, and Kimpoi and Malaya come back to the orchard later in the story.",
+  river:y=>y<34?null:222+8*Math.sin(y/38),
+  labels:[["The Ridge",118,14,1],["Ridge Forest",120,52],["Village Square",272,122],["Cable Car",372,98],["Hike Trail",300,232],["The Cliff",364,302,1],["Orchard",30,224],["Mine cart",106,88],["Mine cart",80,300],["Community Greenhouse",262,288],["Ridgeside Village",104,136,1]],
+  houses:[
+   {n:"Ninja House",w:"East side of The Ridge, north of the village",p:["Jio","Kiwi","Daia","Bliss (later)"],x:330,y:24,t:"dojo"},
+   {n:"Blooming Hill Farm",w:"Northwest of Village Square",p:["Jeric","Bryle"],x:66,y:100,t:"farm"},
+   {n:"Heaps Convenience Store",w:"East of the north mine cart stop",p:["Lorenzo","Shanice","Anton","Kiarra"],x:138,y:100,t:"shop",c:0},
+   {n:"Daniels Residence",w:"West of the hotel, next to Heaps",p:["Ezekiel","Corine"],x:186,y:100,t:"cottage",c:1},
+   {n:"Log Cabin Hotel",w:"Above the Village Office",p:["Richard","Ysabelle","Flor","June","Philip"],x:286,y:100,t:"hotel"},
+   {n:"Odd Jobs Services",w:"Next to the Log Cabin Hotel",p:["Ian","Sean"],x:340,y:100,t:"shop",c:1},
+   {n:"Ridgeside Clinic",w:"Northeast, south of Odd Jobs",p:["Paula"],x:372,y:150,t:"clinic"},
+   {n:"Village Office",w:"South of the hotel, facing the square",p:["Lenny"],x:296,y:166,t:"office"},
+   {n:"Kobayashi Residence",w:"East of the Village Office",p:["Shiro","Yuuma","Naomi (Year 2)"],x:340,y:172,t:"cottage",c:4},
+   {n:"Faye's Residence & Clothing Shop",w:"South of the Village Office",p:["Faye"],x:290,y:212,t:"shop",c:2},
+   {n:"Amethyne Mansion",w:"South of the Kobayashi house",p:["Maive","Sonny","Ariah","Irene","Louie","Zayne"],x:352,y:230,t:"mansion"},
+   {n:"Pickens Residence",w:"North of the Starbound Stage",p:["Maddie"],x:180,y:152,t:"cottage",c:3},
+   {n:"Akina Residence",w:"South of the Starbound Stage",p:["Pika","Keahi"],x:180,y:218,t:"cottage",c:0},
+   {n:"Torts' house",w:"By the pond, left of the stage",p:["Torts"],x:128,y:186,t:"tiny"},
+   {n:"Bladebane Residence",w:"Western edge of the village",p:["Freddie","Lola"],x:34,y:178,t:"cottage",c:2},
+   {n:"Rivera Residence",w:"By the river, west of the Community Greenhouse",p:["Carmen","Blair"],x:190,y:272,t:"cottage",c:1},
+   {n:"Water Research Facility",w:"Southwest, next to the Liden house",p:["Mr. Aguar"],x:92,y:254,t:"lab"},
+   {n:"Liden Residence",w:"Southwest, beside the lab",p:["Bert","Olga","Trinnie"],x:142,y:274,t:"cottage",c:3},
+   {n:"Nightingale Orchard",w:"Southwest corner, west of the Lidens",p:["Alissa","Kimpoi","Malaya"],x:38,y:266,t:"farm"},
+   {n:"Electrician's House",w:"Out at The Cliff",p:["Kenneth"],x:366,y:282,t:"cottage",c:4}
+  ],
+  draw(P){
+   P.grass(1);
+   P.plateau(0,400,0,30,1);
+   P.pines(0,400,2,26,40,[[300,360,0,30]]);
+   P.waterfall(222,28,12);
+   P.forest(0,400,38,64,36,[[208,238],[262,316]]);
+   P.road([[8,112],[392,112]],7);
+   P.road([[296,140],[296,166]],5);P.road([[180,112],[180,232]],5);P.road([[56,112],[56,250],[140,262]],5);P.road([[340,140],[340,172]],4);
+   P.dotted([[330,140],[312,200],[318,246],[350,262]]);
+   P.river(6);
+   P.bridge(112,7);P.bridge(240,4);
+   P.cobble(256,116,76,26);P.well(296,128);P.lamp(258,116);P.lamp(330,116);
+   P.stage(160,168,40,16);
+   P.pond(108,196,14,7);
+   P.field(10,64,38,26);P.shed(92,96);
+   P.cliffBlock(318,246,82,64);
+   P.orchardGrove(4,74,226,306,[[38,266,16]]);
+   P.greenhouse(250,256,26,16);
+   P.cart(106,100);P.cart(80,290);P.cable(388,112);
+   P.bushes(40);P.rocks(18);P.flowers(220);
+  }
+ },
+ sve:{
+  foot:"This tab covers the valley around town: Expanded's new residents plus the vanilla villagers who live outside Pelican Town. Town itself has its own tab. Claire (103 Prairie Road) and Martin both live out in the countryside and commute in. Morris only stays, at the Morris Property, if you take the Joja route. Lance's home, the First Slash Guild Hall, is on Fable Reef and is reached by a hidden warp rune. Castle Village is beyond the desert, and Scarlett lives in Grampleton's suburbs. Camilla, Isaac, Alesia, Bear and Gil can't be gifted. Leo lives on Ginger Island, which isn't shown.",
+  river:y=>y<80?null:(y>262?null:326+4*Math.sin(y/20)+(y-80)*0.02),
+  labels:[["Railroad",250,7],["Train Platform",168,38],["Backwoods",56,46],["Your farm",62,140,1],["Bus Stop",140,132],["Shearwater Bridge",326,164],["Community Garden",300,222],["Mountain Lake",330,62],["The Mountain",350,48,1],["Hat Mouse",62,254],["Cindersap Forest",104,206],["Forest West",26,206],["Pelican Town",226,232,1],["The Beach",214,264],["Fable Reef",238,305],["Grampleton",378,160],["Galdoran",357,297,1]],
+  houses:[
+   {n:"Emerald Farm",w:"Beside the Spa and Train Platform; opens after the summer landslide",p:["Susan"],x:92,y:26,t:"farm"},
+   {n:"Forbidden Maze",w:"Cave northeast of the Train Platform; Henchman lives here after losing his job",p:["Henchman"],x:232,y:40,t:"cave"},
+   {n:"Adventurer's Guild",w:"Adventurer Summit, north of the Mountain Lake",p:["Marlon","Gil"],u:["Marlon","Gil"],x:322,y:26,t:"guild"},
+   {n:"The Mines",w:"Mine entrance, moved to Adventurer Summit in Expanded",p:["Dwarf"],x:364,y:40,t:"cave"},
+   {n:"Carpenter's Shop",w:"The Mountain, north of town",p:["Robin","Demetrius","Maru","Sebastian"],x:262,y:76,t:"lodge"},
+   {n:"Linus' Tent",w:"The Mountain, beside the lake",p:["Linus"],x:290,y:106,t:"tent"},
+   {n:"Marnie's Ranch",w:"North side of Cindersap Forest",p:["Marnie","Jas","Shane"],x:104,y:174,t:"farm"},
+   {n:"Leah's Cottage",w:"Cindersap Forest, east of Marnie's",p:["Leah"],x:154,y:222,t:"cottage",c:3,old:1},
+   {n:"Wizard's Tower",w:"West side of Cindersap Forest",p:["Magnus (the Wizard)","Morgan (Year 3)"],x:66,y:208,t:"tower"},
+   {n:"Fairhaven Farm",w:"South of Marnie's Ranch, east of the Hat Mouse",p:["Andy"],x:108,y:246,t:"farm"},
+   {n:"Blue Moon Vineyard",w:"Between the Beach and Cindersap Forest",p:["Sophia"],x:190,y:246,t:"cottage",c:2},
+   {n:"Elliott's Cabin",w:"West end of the Beach",p:["Elliott"],x:154,y:268,t:"cottage",c:4,old:1},
+   {n:"Willy's Fish Shop",w:"The Beach, by the pier",p:["Willy"],x:296,y:266,t:"shop",c:1},
+   {n:"Aurora Vineyard",w:"Northwest quadrant of Forest West",p:["Apples"],x:22,y:180,t:"cottage",c:3,old:1},
+   {n:"Bear's home & shop",w:"Forest West",p:["Bear"],x:22,y:236,t:"tiny"},
+   {n:"First Slash Guild Hall",w:"Fable Reef, reached by a hidden warp rune",p:["Lance"],x:238,y:294,t:"guild",small:1},
+   {n:"Grampleton Suburbs",w:"106 Pondwood Road, east past Shearwater Bridge (not visitable)",p:["Scarlett"],x:378,y:146,t:"cottage",c:0},
+   {n:"Castle Village",w:"Beyond the Crimson Badlands; they trade at the Outpost",p:["Camilla","Isaac","Alesia","Sandy"],x:358,y:288,t:"tower",castle:1},
+   {n:"Commuters",w:"Live in the countryside and arrive by bus; Claire works at JojaMart, later the Movie Theater",p:["Claire","Martin"],x:140,y:120,t:"busstop"}
+  ],
+  extras:[
+   {x:192,y:114,t:"shop",c:5,gray:1},{x:240,y:114,t:"cottage",c:5,gray:1,wide:1},{x:268,y:100,t:"store",gray:1},{x:286,y:166,t:"forge",gray:1},{x:192,y:166,t:"cottage",c:5,gray:1,wide:1},
+   {x:244,y:166,t:"cottage",c:5,gray:1},{x:186,y:208,t:"cottage",c:5,gray:1},{x:262,y:208,t:"museum",gray:1},{x:76,y:172,t:"barn"},{x:40,y:90,t:"cottage",c:0},{x:168,y:26,t:"station"},{x:62,y:248,t:"tiny"}
+  ],
+  draw(P){
+   P.grass(2);
+   P.plateau(0,400,0,30,2);
+   P.rail(12,118,400);
+   P.field(40,8,32,16);
+   P.pines(0,400,2,26,26,[[60,120,0,30],[140,200,0,30],[290,360,0,30]]);
+   P.mountainArea(240,40,160,68);
+   P.pond(318,74,26,10);
+   P.forest(0,116,38,62,22);
+   P.field(12,96,96,28);P.fence(10,64,104,62);
+   P.forest(0,44,150,256,30,[[10,34],[12,34]]);
+   P.forest(44,206,176,252,34,[[54,80],[94,124],[158,186],[96,116]]);
+   P.road([[110,120],[164,120]],7);
+   P.cobble(160,116,132,10);P.cobble(212,100,10,112);P.cobble(170,168,122,8);P.cobble(160,126,4,0);
+   P.road([[216,212],[216,252]],5);P.road([[180,190],[130,184],[118,180]],5);P.road([[130,184],[126,240]],4);P.road([[216,236],[190,246]],4);
+   P.road([[292,150],[400,150]],6);P.road([[290,108],[300,118]],4);
+   P.lamp(170,116);P.lamp(232,116);P.lamp(288,116);P.lamp(232,168);
+   P.field(284,196,28,14);
+   P.vines(204,222,20,22);
+   P.river(7);
+   P.bridge(150,8);
+   P.beach(252,268);
+   P.island(238,292,22,10);
+   P.inset(318,226,78,76);
+   P.bushes(36);P.rocks(14);P.flowers(200);
+  }
+ }
+};
+DATA.town={
+  foot:"Pelican Town as laid out in the base game, with Expanded's additions (the Jenkins house and the Morris Property). The Community Center and JojaMart are landmarks without residents. Kent moves back to 1 Willow Lane in Year 2. Morris lives at the Morris Property only on the Joja route. Krobus lives in the Sewers, reached through the grate in the south of town.",
+  river:y=>348+3*Math.sin(y/20),
+  labels:[["Pelican Town",72,30,1],["Bus Stop",20,82],["to the Mountain",240,6],["Community Center",150,84],["JojaMart",318,84],["Town Square",172,168],["Graveyard",58,118],["Shearwater Bridge",362,152],["Community Garden",362,264],["to the Beach",226,302]],
+  houses:[
+   {n:"Pierre's General Store",w:"North side of the town square",p:["Pierre","Caroline","Abigail"],x:214,y:128,t:"shop",c:3},
+   {n:"Harvey's Clinic",w:"Next door to Pierre's, west side",p:["Harvey"],x:164,y:128,t:"clinic"},
+   {n:"Jenkins' Residence",w:"East of Pierre's, north of 1 River Road (Expanded)",p:["Olivia","Victor"],x:272,y:114,t:"cottage",c:4,wide:1},
+   {n:"1 River Road",w:"East side of town, by the river",p:["George","Evelyn","Alex"],x:300,y:168,t:"cottage",c:1},
+   {n:"Stardrop Saloon",w:"South side of the town square",p:["Gus"],x:222,y:206,t:"saloon"},
+   {n:"The Trailer",w:"East of the Saloon",p:["Pam","Penny"],x:290,y:214,t:"trailer"},
+   {n:"1 Willow Lane",w:"West side of town",p:["Jodi","Kent (Year 2)","Sam","Vincent"],x:96,y:212,t:"cottage",c:0},
+   {n:"2 Willow Lane",w:"Southwest corner of town",p:["Emily","Haley"],x:58,y:264,t:"cottage",c:2},
+   {n:"Mayor's Manor",w:"South of town, near the beach path",p:["Lewis"],x:158,y:266,t:"manor"},
+   {n:"Blacksmith",w:"East side of town, south of JojaMart",p:["Clint"],x:322,y:128,t:"forge"},
+   {n:"Museum & Library",w:"Southeast Pelican Town; Gunther's apartment is upstairs",p:["Gunther"],x:302,y:266,t:"museum"},
+   {n:"Morris Property",w:"Path east of JojaMart; Joja route only (Expanded)",p:["Morris"],x:384,y:62,t:"cottage",c:1},
+   {n:"The Sewers",w:"Grate in the south of town",p:["Krobus"],x:332,y:300,t:"grate"}
+  ],
+  extras:[{x:150,y:74,t:"cc"},{x:318,y:74,t:"store"}],
+  draw(P){
+   P.grass(3);
+   P.forest(0,400,0,44,36);
+   P.forest(0,36,150,310,10);P.forest(362,400,170,226,4);P.forest(0,400,276,310,12);
+   P.road([[0,92],[62,92]],7);P.cobble(60,88,284,8);
+   P.road([[240,0],[240,86]],6);
+   P.cobble(126,96,7,130);P.cobble(186,96,8,38);P.cobble(146,134,104,40);P.cobble(36,226,304,7);
+   P.road([[226,234],[226,310]],6);P.road([[226,282],[200,310]],5);
+   P.river(7);P.bridge(140,8);P.bridge(62,6);P.road([[358,140],[400,140]],6);P.road([[358,62],[372,62]],4);
+   P.graveyard(30,124,56,32);
+   P.well(198,152);P.lamp(148,134);P.lamp(248,134);P.lamp(130,226);P.lamp(338,226);P.lamp(62,88);P.lamp(300,88);
+   P.field(366,238,26,18);
+   P.bushes(44);P.rocks(8);P.flowers(260);
+  }
+};
+/* ---------- palette ---------- */
+const C={g1:"#68b848",g2:"#5aa83e",g3:"#77c656",gd:"#3f8a2e",gs:"#4c9a37",pl1:"#4f9a3c",pl2:"#46903a",
+ t1:"#2d7632",t2:"#3e9539",t3:"#5bb44c",td:"#1f5726",trunk:"#6b4423",trunkd:"#4a2c16",pine:"#2a6a3a",pined:"#1c4c2a",pineh:"#3d8a4a",
+ r1:"#9b938a",r2:"#7d766e",r3:"#615b55",rh:"#bdb6ab",
+ w1:"#3a8fd8",w2:"#2b74bd",w3:"#7cc4f4",foam:"#eaf7ff",bank:"#8f8a7a",bankd:"#6f6a5c",
+ sand:"#ecd391",sand2:"#d9bb72",dirt:"#c99d5e",dirt2:"#a97c46",dirt3:"#dcb57a",peb:"#8a6a42",
+ cob:"#b7ab96",cob2:"#978b76",cobl:"#d5cab5",soil:"#8a5631",soil2:"#6c4122",sprout:"#7ad04a",sproutd:"#4f9a30",fence:"#a87240",fenced:"#5e3a1c",
+ wall:"#f1dfb4",walld:"#d3ba86",log:"#a8683a",logd:"#7f4a24",stone:"#b9b2a6",stoned:"#8e877c",white:"#f4f1ea",whited:"#d6d0c4",beam:"#6e4424",
+ door:"#5a3418",doord:"#3c210e",glass:"#9fd8f0",glassh:"#e4f6ff",glow:"#ffd770",chim:"#8d877f",
+ roofs:[["#c64332","#9a3024"],["#3e6fc8","#2c5296"],["#8e4a9e","#6b3478"],["#c27024","#934f12"],["#2f8a6a","#226650"],["#8a8a94","#6c6c76"]],
+ rail:"#7d7d7d",tie:"#6b4423",red:"#b8553a",red2:"#8f3d27",fl:["#ffe14d","#ff7aa8","#ffffff","#b48cff","#ff9a3d"]};
+
+const cv=document.getElementById("cv"),ctx=cv.getContext("2d"),W=400,H=310;
+const baseCv=document.createElement("canvas");baseCv.width=W;baseCv.height=H;const b=baseCv.getContext("2d");
+let water=[],windows=[],foamLine=[],fallPts=[],mask,sprites;
+
+function painter(seed,map){
+ let s=seed*7919+13;const rnd=()=>(s=(s*16807)%2147483647)/2147483647;
+ mask=new Uint8Array(W*H);sprites=[];
+ const R=(x,y,w,h,c)=>{b.fillStyle=c;b.fillRect(Math.round(x),Math.round(y),Math.max(1,Math.round(w)),Math.max(1,Math.round(h)))};
+ const D=(x,y,c)=>R(x,y,1,1,c);
+ const M=(x,y,w,h,v)=>{x=Math.round(x);y=Math.round(y);for(let j=Math.max(0,y);j<Math.min(H,y+h);j++)for(let i=Math.max(0,x);i<Math.min(W,x+w);i++)mask[j*W+i]|=v};
+ const free=(x,y,w,h,bits)=>{x=Math.round(x);y=Math.round(y);for(let j=y;j<y+h;j++)for(let i=x;i<x+w;i++){if(i<0||j<0||i>=W||j>=H)return false;if(mask[j*W+i]&bits)return false}return true};
+ const oval=(cx,cy,rx,ry,c,rec)=>{for(let y=-ry;y<=ry;y++)for(let x=-rx;x<=rx;x++)if((x*x)/(rx*rx)+(y*y)/(ry*ry)<=1){D(cx+x,cy+y,c);if(rec)water.push([cx+x,cy+y])}};
+ const path=(pts,step,fn)=>{for(let k=0;k<pts.length-1;k++){const[x0,y0]=pts[k],[x1,y1]=pts[k+1];const n=Math.max(Math.abs(x1-x0),Math.abs(y1-y0));for(let i=0;i<=n;i+=step)fn(x0+(x1-x0)*i/n,y0+(y1-y0)*i/n)}};
+
+ /* ---- sprites (y-sorted, drawn last) ---- */
+ const tree=(x,y,fruit)=>{oval(x+2,y+1,7,2,C.gd);R(x-1,y-5,3,6,C.trunk);R(x+1,y-5,1,6,C.trunkd);
+   oval(x,y-11,8,7,C.t1);oval(x-1,y-12,7,6,C.t2);oval(x-3,y-14,3,3,C.t3);D(x+4,y-7,C.td);D(x+5,y-9,C.td);D(x-6,y-7,C.td);D(x+2,y-5,C.td);
+   if(fruit){[[-3,-9],[2,-13],[4,-8],[-1,-6],[-5,-12]].forEach(([dx,dy])=>{D(x+dx,y+dy,"#ff8a2a");D(x+dx+1,y+dy,"#ffb03a")})}};
+ const pine=(x,y)=>{oval(x+1,y+1,5,2,C.pined);R(x-1,y-3,3,4,C.trunk);for(let i=0;i<12;i++){const w=Math.floor(i/2)+1;R(x-w,y-15+i,w*2+1,1,i%4===3?C.pined:C.pine);D(x-w,y-15+i,C.pineh)}D(x,y-16,C.pine)};
+ const bush=(x,y)=>{oval(x+1,y,5,2,C.gd);oval(x,y-3,5,3,C.t1);oval(x-1,y-4,3,2,C.t2);D(x-2,y-5,C.t3);if(rnd()<.4){D(x+1,y-4,"#ff7aa8");D(x-2,y-2,"#ff7aa8")}};
+ const rock=(x,y)=>{oval(x+1,y,4,1,C.gd);oval(x,y-2,4,3,C.r1);oval(x-1,y-3,2,1,C.rh);D(x+2,y-1,C.r3)};
+ const P={
+  grass(sd){for(let y=0;y<H;y+=4)for(let x=0;x<W;x+=4){const n=Math.sin(x*.045+sd)+Math.sin(y*.06+sd*2)+Math.sin((x-y)*.025)+rnd()*.7;R(x,y,4,4,n>1.1?C.g3:n>-0.5?C.g1:C.g2)}
+   for(let i=0;i<1300;i++){const x=rnd()*W,y=rnd()*H;D(x,y,C.gd);D(x+1,y-1,C.gs);D(x+2,y,C.gd)}},
+  plateau(x0,x1,y0,y1){for(let y=y0;y<y1;y+=4)for(let x=x0;x<x1;x+=4)R(x,y,4,4,((x*7+y*3)>>3)%3?C.pl1:C.pl2);
+   for(let x=x0;x<x1;x++){const h=8+Math.round(2*Math.sin(x*.3)+Math.sin(x*.11));R(x,y1,1,h,C.r2);if(x%5<2)R(x,y1+1,1,h-2,C.r1);if(x%11===0)R(x,y1+2,1,h-3,C.r3);D(x,y1,C.gd);R(x,y1+h,1,2,C.r3)}M(x0,y1,x1-x0,11,1)},
+  pines(x0,x1,y0,y1,n,ex){for(let i=0;i<n;i++){const x=x0+rnd()*(x1-x0),y=y0+8+rnd()*(y1-y0-8);if(ex&&ex.some(([a,c,d,e])=>x>a&&x<c&&y>d&&y<e))continue;sprites.push({y,f:()=>pine(Math.round(x),Math.round(y)),fx:x,k:"pine"})}},
+  waterfall(x,y,h){for(let j=0;j<h;j++){R(x-5,y+j,10,1,C.w1);for(let i=-4;i<5;i+=2)D(x+i,y+j,(j+i)%3?C.w3:C.foam);fallPts.push([x,y+j])}oval(x,y+h+2,8,3,C.foam);M(x-6,y,12,h+4,1)},
+  forest(x0,x1,y0,y1,n){for(let i=0;i<n;i++){const x=x0+4+rnd()*(x1-x0-8),y=y0+12+rnd()*(y1-y0-12);sprites.push({y,f:()=>tree(Math.round(x),Math.round(y)),fx:x,k:"tree"})}},
+  orchardGrove(x0,x1,y0,y1){for(let y=y0+12,r=0;y<y1;y+=14,r++)for(let x=x0+6+(r%2)*7;x<x1;x+=15)sprites.push({y,f:((X,Y)=>()=>tree(X,Y,1))(x,y),fx:x,k:"tree"})},
+  bushes(n){for(let i=0;i<n;i++){const x=6+rnd()*(W-12),y=10+rnd()*(H-14);sprites.push({y,f:()=>bush(Math.round(x),Math.round(y)),fx:x,k:"bush"})}},
+  rocks(n){for(let i=0;i<n;i++){const x=6+rnd()*(W-12),y=10+rnd()*(H-14);sprites.push({y,f:()=>rock(Math.round(x),Math.round(y)),fx:x,k:"bush"})}},
+  mountainArea(x,y,w,h){for(let i=0;i<w*h/60;i++){const px=x+rnd()*w,py=y+rnd()*h;R(px,py,3,2,C.r1);D(px,py,C.rh)}for(let i=0;i<10;i++){const px=x+rnd()*w,py=y+8+rnd()*(h-8);sprites.push({y:py,f:()=>rock(Math.round(px),Math.round(py)),fx:px,k:"bush"})}},
+  flowers(n){sprites.push({y:-1,first:1,f:()=>{for(let i=0;i<n;i++){const x=Math.round(rnd()*W),y=Math.round(10+rnd()*(H-14));if(!free(x-1,y-1,3,3,7))continue;const c=C.fl[Math.floor(rnd()*C.fl.length)];D(x,y-1,c);D(x-1,y,c);D(x+1,y,c);D(x,y+1,c);D(x,y,"#ffd23f")}}})},
+  road(pts,w){path(pts,1,(x,y)=>{R(x-w/2-1,y-w/2-1,w+2,w+2,C.dirt2);M(x-w/2-1,y-w/2-1,w+2,w+2,1)});path(pts,1,(x,y)=>R(x-w/2,y-w/2,w,w,C.dirt));path(pts,3,(x,y)=>{if(rnd()<.5)D(x+(rnd()*w-w/2),y+(rnd()*w-w/2),rnd()<.5?C.peb:C.dirt3)})},
+  dotted(pts){path(pts,5,(x,y)=>{oval(Math.round(x),Math.round(y),2,1,C.cob2);D(x-1,y-1,C.cobl);M(x-2,y-1,5,3,1)})},
+  river(w){const f=map.river;for(let y=0;y<H;y++){const x=f(y);if(x==null)continue;const X=Math.round(x);R(X-w-3,y,w*2+6,1,C.bankd);R(X-w-2,y,w*2+4,1,C.bank);R(X-w,y,w*2,1,C.w1);R(X-w+2,y,w*2-4,1,C.w2);if(y%4===0){D(X-w-2,y,C.r1);D(X+w+1,y+2,C.r1)}for(let i=-w+1;i<w-1;i+=3)if(rnd()<.3)water.push([X+i,y]);M(X-w-3,y,w*2+6,1,1)}},
+  bridge(y,h){const x=Math.round(map.river(y));const w=24;R(x-w/2,y-h/2,w,h,C.beam);for(let i=-w/2+1;i<w/2;i+=3)R(x+i,y-h/2+1,2,h-2,C.dirt3);R(x-w/2,y-h/2-1,w,2,C.fenced);R(x-w/2,y+h/2-1,w,2,C.fenced);for(let i=-w/2;i<=w/2;i+=6){R(x+i-1,y-h/2-3,2,4,C.fenced);R(x+i-1,y+h/2-1,2,3,C.fenced)}},
+  cobble(x,y,w,h){R(x,y,w,h,C.cob);for(let j=0;j<h;j+=4){R(x,y+j,w,1,C.cob2);for(let i=((j/4)%2)*3;i<w;i+=6)R(x+i,y+j,1,4,C.cob2)}for(let i=0;i<w*h/30;i++)D(x+rnd()*w,y+rnd()*h,C.cobl);R(x-1,y-1,w+2,1,C.cob2);R(x-1,y+h,w+2,1,C.bankd);M(x-1,y-1,w+2,h+2,1)},
+  well(x,y){oval(x,y,6,4,C.stoned);oval(x,y,5,3,C.stone);oval(x,y,3,2,C.w2);R(x-6,y-10,2,9,C.beam);R(x+5,y-10,2,9,C.beam);R(x-8,y-12,17,3,C.roofs[0][0]);R(x-8,y-10,17,1,C.roofs[0][1]);M(x-8,y-12,17,17,2)},
+  lamp(x,y){R(x,y-10,1,10,"#3a3a46");R(x-1,y-12,3,3,"#3a3a46");D(x,y-11,C.glow);windows.push([x,y-11,1,1]);M(x-1,y-12,3,13,2)},
+  stage(x,y,w,h){R(x,y,w,h,C.log);for(let i=0;i<w;i+=4)R(x+i,y,1,h,C.logd);R(x,y,w,2,C.dirt3);R(x,y+h,w,2,C.logd);R(x+1,y-10,2,10,C.fenced);R(x+w-3,y-10,2,10,C.fenced);R(x-1,y-13,w+2,4,C.roofs[2][0]);R(x-1,y-10,w+2,1,C.roofs[2][1]);for(let i=0;i<w;i+=6)D(x+i+2,y-9,C.glow);M(x-1,y-13,w+2,h+15,2)},
+  pond(cx,cy,rx,ry){oval(cx,cy,rx+2,ry+2,C.bank);oval(cx,cy,rx,ry,C.w1,1);oval(cx,cy,rx-3,ry-2,C.w2);oval(cx+rx-5,cy+1,2,1,"#4fa84a");oval(cx-rx+5,cy-1,2,1,"#4fa84a");D(cx-rx+5,cy-2,"#ff7aa8");M(cx-rx-2,cy-ry-2,rx*2+5,ry*2+5,1)},
+  field(x,y,w,h){R(x,y,w,h,C.soil);for(let j=2;j<h-1;j+=5){R(x+2,y+j+2,w-4,1,C.soil2);for(let i=3;i<w-3;i+=4){D(x+i,y+j,C.sprout);D(x+i-1,y+j+1,C.sproutd);D(x+i+1,y+j+1,C.sproutd)}}P.fence(x-2,y-2,w+4,h+4);M(x-3,y-3,w+6,h+6,1)},
+  fence(x,y,w,h){R(x,y,w,1,C.fenced);R(x,y+h,w,1,C.fenced);R(x,y,1,h,C.fenced);R(x+w-1,y,1,h,C.fenced);for(let i=0;i<=w;i+=5){R(x+i-1,y-2,2,4,C.fence);R(x+i-1,y+h-2,2,4,C.fence)}for(let j=0;j<=h;j+=5){R(x-1,y+j-1,2,3,C.fence);R(x+w-2,y+j-1,2,3,C.fence)}},
+  vines(x,y,w,h){for(let j=0;j<h;j+=5){R(x,y+j+2,w,1,C.trunk);for(let i=0;i<w;i+=2){D(x+i,y+j+1,C.t2);D(x+i,y+j,i%4?C.t1:C.t3);if(rnd()<.25)D(x+i,y+j+2,"#7a3a98")}}for(let j=0;j<h;j+=5){R(x-1,y+j-1,1,4,C.fenced);R(x+w,y+j-1,1,4,C.fenced)}M(x-1,y-1,w+2,h+2,1)},
+  shed(x,y){bld(x,y,{w:14,wh:7,rh:5,wall:C.log,wallD:C.logd,roof:C.roofs[3][0],roofD:C.roofs[3][1],log:1,nowin:1})},
+  cliffBlock(x,y,w,h){for(let j=y;j<y+h;j+=4)for(let i=x;i<x+w;i+=4)R(i,j,4,4,((i+j)>>2)%3?"#8fae6a":"#86a462");
+   for(let i=x;i<x+w;i++){const d=Math.round(2*Math.sin(i*.4));R(i,y+d-8,1,8,C.r2);if(i%4<2)R(i,y+d-7,1,6,C.r1);D(i,y+d-9,C.gd)}
+   for(let j=y;j<y+h;j++){const d=Math.round(2*Math.sin(j*.4));R(x+d-6,j,6,1,C.r2);if(j%4<2)R(x+d-5,j,4,1,C.r1)}M(x-7,y-10,w+7,12,1);M(x-7,y,8,h,1)},
+  greenhouse(x,y,w,h){R(x,y,w,h,C.glass);for(let i=0;i<w;i+=4)R(x+i,y,1,h,"#e4f6ff");for(let j=0;j<h;j+=5)R(x,y+j,w,1,"#cdeefb");R(x,y-4,w,4,"#b8e6f7");R(x+2,y-6,w-4,2,"#dff4fc");R(x,y+h-2,w,2,C.beam);R(x+w/2-2,y+h-6,4,6,C.door);oval(x+w/2,y+h+2,w/2+2,2,C.gd);M(x-2,y-7,w+4,h+10,2);windows.push([x+3,y+3,w-6,h-8])},
+  cart(x,y){R(x-10,y+2,20,1,C.rail);for(let i=-9;i<10;i+=4)R(x+i,y+1,2,3,C.tie);R(x-5,y-5,10,6,"#6a6a72");R(x-5,y-5,10,1,"#9a9aa4");D(x-3,y+1,"#2a2a2a");D(x+3,y+1,"#2a2a2a");M(x-10,y-5,20,9,2)},
+  cable(x,y){R(x-8,y-14,16,14,C.stone);R(x-8,y-14,16,2,C.stoned);R(x-9,y-17,18,3,C.roofs[1][0]);R(x-3,y-8,6,8,C.door);for(let i=x+8;i<W;i++)D(i,y-15-(i-x-8)*.6,"#3a3a46");M(x-9,y-17,18,20,2)},
+  rail(y,x0,x1){for(let x=x0;x<x1;x+=5)R(x,y-3,3,8,C.tie);R(x0,y-1,x1-x0,1,C.rail);R(x0,y+3,x1-x0,1,C.rail);R(x0,y-2,x1-x0,1,"#5a5a5a");M(x0,y-3,x1-x0,8,1)},
+  beach(y0,y1){foamLine=[];for(let x=0;x<W;x++){const t=Math.round(y0+3*Math.sin(x/18));const f=Math.round(y1+2*Math.sin(x/9));R(x,t,1,f-t,C.sand);if(x%7===0)D(x,t+3,C.sand2);if(x%13===0)D(x,t+8,"#fff3c4");R(x,f,1,H-f,C.w1);R(x,f+8,1,H,C.w2);foamLine.push([x,f]);if(rnd()<.25)water.push([x,f+3+rnd()*30]);M(x,t,1,H-t,1)}},
+  island(cx,cy,rx,ry){oval(cx,cy,rx+3,ry+3,C.w3);oval(cx,cy,rx,ry,C.sand);oval(cx-2,cy-1,rx-5,ry-3,C.g1);[[cx-14,cy+2],[cx+15,cy]].forEach(([px,py])=>sprites.push({y:py,f:()=>{R(px,py-12,2,12,C.trunk);R(px-4,py-14,10,2,C.t2);R(px-3,py-15,4,1,C.t3);D(px+5,py-12,C.t1);D(px-4,py-12,C.t1)},fx:px,k:"x"}))},
+  graveyard(x,y,w,h){for(let j=y;j<y+h;j+=4)for(let i=x;i<x+w;i+=4)R(i,j,4,4,((i+j)>>2)%2?C.g2:C.gs);P.fence(x,y,w,h);for(let j=y+8;j<y+h-2;j+=9)for(let i=x+6;i<x+w-4;i+=9){R(i,j-5,5,6,C.stone);R(i+1,j-6,3,1,C.stone);R(i,j,5,1,C.stoned);D(i+2,j-3,C.stoned);R(i,j+1,5,1,C.soil)}M(x-1,y-1,w+2,h+2,1)},
+  inset(x,y,w,h){R(x-3,y-3,w+6,h+6,C.wood||"#7b4a24");R(x-2,y-2,w+4,h+4,"#c98a4e");R(x,y,w,h,"#e2b878");for(let j=y;j<y+h;j+=4)for(let i=x;i<x+w;i+=4)if(((i*3+j)>>2)%4===0)R(i,j,4,4,"#d8a866");
+   for(let i=0;i<9;i++){const px=x+6+rnd()*(w-12),py=y+14+rnd()*(h-20);oval(px,py,4,3,C.red);oval(px-1,py-1,2,1,"#d8805a");D(px+2,py+1,C.red2)}
+   for(let i=0;i<5;i++){const px=Math.round(x+6+rnd()*(w-12)),py=Math.round(y+14+rnd()*(h-20));R(px,py-7,2,8,"#4f9a3c");R(px-2,py-5,2,2,"#4f9a3c");R(px+2,py-6,2,3,"#4f9a3c")}M(x-3,y-3,w+6,h+6,1)}
+ };
+
+ /* ---- buildings ---- */
+ function bld(x,y,o){const w=o.w,wh=o.wh,rh=o.rh,L=Math.round(x-w/2);
+  oval(x+3,y+1,Math.round(w/2)+3,2,C.gd);
+  for(let j=0;j<wh;j++){R(L,y-wh+j,w,1,o.log?((j>>1)%2?o.wallD:o.wall):o.wall)}
+  if(!o.log){R(L,y-2,w,2,o.base||C.stoned)}
+  R(L,y-wh,w,1,"#00000033");
+  if(o.columns)for(let i=L+3;i<L+w-2;i+=5){R(i,y-wh,2,wh,C.white);D(i+1,y-wh,C.whited)}
+  for(let r=0;r<rh;r++){const ins=Math.round((rh-1-r)*0.45);const rx=L-2+ins,rw=w+4-ins*2;R(rx,y-wh-rh+r,rw,1,r===0?(o.roofH||lighten(o.roof)):(r%3===2?o.roofD:o.roof));D(rx,y-wh-rh+r,o.roofD);D(rx+rw-1,y-wh-rh+r,o.roofD)}
+  R(L-2,y-wh-1,w+4,1,o.roofD);
+  if(o.chimney!==0&&!o.nochim){const cx=L+w-6;R(cx,y-wh-rh-3,3,5,C.chim);R(cx,y-wh-rh-3,3,1,C.r3)}
+  if(!o.nowin){const rows=o.rows||1,cols=o.cols||2;for(let rr=0;rr<rows;rr++){const wy=y-wh+2+rr*6;for(let c=0;c<cols;c++){let wx;if(cols===2)wx=c?L+w-7:L+3;else wx=Math.round(L+3+c*((w-10)/(cols-1)));if(Math.abs(wx+2-x)<4&&rr===rows-1)continue;
+      R(wx-1,wy-1,6,5,C.beam);R(wx,wy,4,3,C.glass);D(wx,wy,C.glassh);R(wx+2,wy,1,3,C.beam);windows.push([wx,wy,4,3]);if(!o.nobox&&rr===rows-1){R(wx-1,wy+3,6,1,C.logd);D(wx,wy+2,"#ff7aa8");D(wx+3,wy+2,"#ffe14d")}}}}
+  if(!o.nodoor){R(x-3,y-7,6,7,C.beam);R(x-2,y-6,4,6,o.doorC||C.door);D(x+1,y-3,C.glow);R(x-3,y,6,1,C.cob2)}
+  if(o.awning){const aw=w-4;for(let i=0;i<aw;i++)R(L+2+i,y-wh+(o.rows>1?7:1),1,3,(i>>1)%2?o.awning:"#fff4dc");R(L+2,y-wh+(o.rows>1?10:4),aw,1,"#00000033")}
+  if(o.cross){R(x-1,y-wh-rh+1,3,7,"#e23b3b");R(x-3,y-wh-rh+3,7,3,"#e23b3b")}
+  if(o.flag){R(L+w+1,y-wh-rh-8,1,wh+rh+8,"#3a3a46");R(L+w+2,y-wh-rh-8,6,4,o.flag)}
+  if(o.dome){oval(L+w-7,y-wh-rh-1,5,4,C.glass);oval(L+w-8,y-wh-rh-2,2,2,C.glassh);D(L+w-7,y-wh-rh-7,"#3a3a46")}
+  if(o.sign){R(x-5,y-wh-4,10,4,C.log);R(x-4,y-wh-3,8,2,C.dirt3)}
+  if(o.lanterns){R(L-1,y-wh+1,2,3,"#e23b3b");R(L+w-1,y-wh+1,2,3,"#e23b3b");windows.push([L-1,y-wh+1,2,3],[L+w-1,y-wh+1,2,3])}
+  if(o.hedge){R(L-6,y-4,5,4,C.t1);R(L+w+1,y-4,5,4,C.t1);D(L-5,y-4,C.t3);D(L+w+2,y-4,C.t3)}
+  return y-wh-rh-(o.chimney===0?0:3)}
+ function lighten(c){const n=parseInt(c.slice(1),16);const f=v=>Math.min(255,v+34);return"#"+[f(n>>16),f((n>>8)&255),f(n&255)].map(v=>v.toString(16).padStart(2,"0")).join("")}
+ function spec(h){const pair=C.roofs[h.gray?5:(h.c??0)];const base={wall:C.wall,wallD:C.walld,roof:pair[0],roofD:pair[1]};
+  if(h.gray){base.wall="#e6dccb";base.wallD="#c8bda8"}
+  switch(h.t){
+   case"cottage":return{...base,w:h.wide?26:20,wh:11,rh:10,log:h.old,wall:h.old?"#9a7a5a":base.wall,wallD:h.old?"#7a5c40":base.wallD};
+   case"farm":return{...base,w:26,wh:11,rh:11,wall:C.log,wallD:C.logd,log:1,roof:C.roofs[0][0],roofD:C.roofs[0][1]};
+   case"shop":return{...base,w:24,wh:12,rh:8,awning:["#d84a3a","#3a7ad8","#e86aa0","#3aa86a","#c8a020","#8a8a94"][h.c??0],sign:1};
+   case"hotel":return{...base,w:36,wh:17,rh:12,wall:C.log,wallD:C.logd,log:1,rows:2,cols:4,roof:C.roofs[4][0],roofD:C.roofs[4][1],sign:1};
+   case"mansion":return{...base,w:42,wh:17,rh:11,wall:C.white,wallD:C.whited,columns:1,rows:2,cols:5,roof:C.roofs[2][0],roofD:C.roofs[2][1],hedge:1,nobox:1};
+   case"clinic":return{...base,w:24,wh:12,rh:8,wall:C.white,wallD:C.whited,roof:C.roofs[1][0],roofD:C.roofs[1][1],cross:1,nochim:1};
+   case"office":return{...base,w:28,wh:13,rh:9,wall:C.stone,wallD:C.stoned,roof:C.roofs[0][0],roofD:C.roofs[0][1],flag:"#3aa86a",sign:1};
+   case"lab":return{...base,w:28,wh:12,rh:6,wall:"#c9d3dc",wallD:"#a9b4bf",roof:"#5a6a7a",roofD:"#44525f",dome:1,nochim:1,nobox:1};
+   case"museum":return{...base,w:36,wh:15,rh:9,wall:"#e8dcc0",wallD:"#cbbd9c",columns:1,roof:C.roofs[4][0],roofD:C.roofs[4][1],nochim:1,nobox:1,cols:4};
+   case"store":return{...base,w:38,wh:14,rh:6,wall:"#d8dde6",wallD:"#b8bfcb",roof:"#7a8296",roofD:"#5e6576",awning:"#5a6aa8",nochim:1,nobox:1,cols:4};
+   case"forge":return{...base,w:24,wh:12,rh:8,wall:C.stone,wallD:C.stoned,roof:"#6c6c76",roofD:"#55555e",nobox:1};
+   case"barn":return{...base,w:30,wh:14,rh:9,wall:"#b8452f",wallD:"#8f3322",roof:"#6b4423",roofD:"#4a2c16",nowin:1,nochim:1,doorC:"#7a2a1a"};
+   case"guild":return{...base,w:h.small?24:30,wh:13,rh:9,wall:C.stone,wallD:C.stoned,roof:"#7a4a2a",roofD:"#5a3418",flag:"#d84a3a",sign:1};
+   case"dojo":return{...base,w:28,wh:11,rh:11,wall:"#5a3a2a",wallD:"#46291c",roof:"#b8352a",roofD:"#8a2218",lanterns:1,nochim:1,nobox:1};
+   case"lodge":return{...base,w:32,wh:14,rh:11,wall:C.log,wallD:C.logd,log:1,roof:C.roofs[0][0],roofD:C.roofs[0][1],cols:3,sign:1};
+   case"saloon":return{...base,w:34,wh:15,rh:9,wall:C.log,wallD:C.logd,log:1,roof:"#7a4a2a",roofD:"#5a3418",cols:4,sign:1,awning:"#c64332"};
+   case"manor":return{...base,w:36,wh:15,rh:11,wall:C.white,wallD:C.whited,columns:1,cols:4,roof:C.roofs[1][0],roofD:C.roofs[1][1],hedge:1,nobox:1};
+   case"cc":return{...base,w:48,wh:17,rh:12,wall:"#c9b48a",wallD:"#a8936a",roof:"#6b5a3a",roofD:"#4e3f28",cols:5,rows:2,nobox:1,columns:1};
+   case"station":return{...base,w:22,wh:10,rh:7,wall:C.log,wallD:C.logd,log:1,roof:"#6c6c76",roofD:"#55555e",nobox:1};
+  }return base}
+ function building(h){
+  if(h.t==="none")return h.y-6;
+  if(h.t==="tiny"){oval(h.x+2,h.y+1,7,2,C.gd);R(h.x-5,h.y-6,10,6,C.log);R(h.x-6,h.y-9,12,4,C.roofs[0][0]);R(h.x-6,h.y-6,12,1,C.roofs[0][1]);R(h.x-1,h.y-4,3,4,C.doord);return h.y-10}
+  if(h.t==="trailer"){const x=h.x,y=h.y;oval(x+3,y+1,18,2,C.gd);R(x-16,y-12,32,12,"#e9eef0");R(x-16,y-5,32,2,"#3aa0a8");R(x-17,y-11,1,10,"#c9d0d4");R(x+16,y-11,1,10,"#c9d0d4");R(x-16,y-13,32,1,"#c9d0d4");[[x-12,y-10],[x+7,y-10]].forEach(([wx,wy])=>{R(wx,wy,5,3,C.glass);windows.push([wx,wy,5,3])});R(x-2,y-9,5,9,C.door);R(x-4,y,9,1,C.cob2);R(x-14,y,2,2,"#555");R(x+12,y,2,2,"#555");return y-14}
+  if(h.t==="tent"){const x=h.x,y=h.y;oval(x+2,y+1,10,2,C.gd);for(let k=0;k<11;k++){R(x-k,y-11+k,k*2+1,1,k%3?"#c9a24a":"#b38a34")}R(x-1,y-8,3,8,"#3a2a14");R(x+9,y-4,3,4,C.r2);D(x+10,y-5,"#ff8a2a");windows.push([x+10,y-5,1,1]);return y-12}
+  if(h.t==="grate"){const x=h.x,y=h.y;R(x-5,y-6,11,7,C.r3);for(let i=-4;i<6;i+=2)R(x+i,y-5,1,5,"#2a2a2a");R(x-5,y-6,11,1,C.r1);return y-7}
+  if(h.t==="busstop"){R(h.x-10,h.y-12,2,12,C.fenced);R(h.x+8,h.y-12,2,12,C.fenced);R(h.x-12,h.y-14,24,3,C.roofs[1][0]);R(h.x-12,h.y-11,24,1,C.roofs[1][1]);R(h.x-7,h.y-5,14,2,C.log);R(h.x-6,h.y-3,1,3,C.logd);R(h.x+5,h.y-3,1,3,C.logd);R(h.x+12,h.y-10,1,10,"#3a3a46");R(h.x+11,h.y-13,5,3,"#e8d040");return h.y-14}
+  if(h.t==="cave"){oval(h.x,h.y-6,9,8,C.r2);oval(h.x,h.y-5,6,6,"#1e1a18");R(h.x-7,h.y-12,2,12,C.beam);R(h.x+6,h.y-12,2,12,C.beam);R(h.x-7,h.y-13,15,2,C.beam);return h.y-14}
+  if(h.t==="tower"){const x=h.x,y=h.y,wc=h.castle?"#a8a2b8":"#8a7fa8",wd=h.castle?"#7e7894":"#6a5f88";oval(x+3,y+1,10,3,C.gd);R(x-7,y-26,14,26,wc);R(x-7,y-26,3,26,wd);R(x+4,y-26,3,26,wd);
+   R(x-2,y-8,5,8,C.door);R(x-1,y-18,3,4,C.glass);windows.push([x-1,y-18,3,4]);
+   if(h.castle){for(let i=-8;i<8;i+=4)R(x+i,y-30,3,4,wc);R(x,y-40,1,10,"#3a3a46");R(x+1,y-40,6,4,"#d84a3a");return y-40}
+   for(let k=0;k<12;k++){const ww=Math.max(0,8-Math.floor(k*0.7));R(x-ww,y-27-k,ww*2+1,1,k%3===2?"#3a2a6a":"#4a3a8a")}D(x,y-39,"#ffd23f");return y-39}
+  const sp=spec(h);if(h.gray){sp.roof=C.roofs[5][0];sp.roofD=C.roofs[5][1];sp.wall="#e6dccb";sp.wallD="#c8bda8"}return bld(h.x,h.y,sp)}
+ return {P,building,M,free,specOf:spec,flushSprites(){sprites.filter(s=>s.first).forEach(s=>s.f());sprites.filter(s=>!s.first).sort((a,c)=>a.y-c.y).forEach(s=>{
+   if(s.bld){s.f();return}
+   const x=s.fx,y=s.y;
+   if(s.k==="tree"){if(!free(x-4,y-2,9,4,3)||!free(x-8,y-18,17,20,2))return}
+   else if(s.k==="pine"){if(!free(x-3,y-2,7,3,3)||!free(x-6,y-16,13,17,2))return}
+   else if(s.k==="bush"){if(!free(x-5,y-6,11,8,3))return}
+   s.f();
+   const k=s.k==="tree"?{x:x-8,y:y-18,w:17,h:20}:s.k==="pine"?{x:x-6,y:y-16,w:13,h:17}:{x:x-5,y:y-6,w:11,h:7};
+   M(k.x,k.y,k.w,k.h,4)})},queue(s){sprites.push(s)}};
+}
+
+/* ---------- UI ---------- */
+let cur="rsv",sel=-1,romOn=false,night=false,tick=0,tops=[];
+try{const s=localStorage.getItem("vra-tab");if(s&&DATA[s])cur=s}catch(e){}
+try{night=localStorage.getItem("vra-night")==="1"}catch(e){}
+const reduce=matchMedia("(prefers-reduced-motion: reduce)").matches;
+const stage=document.getElementById("stage"),list=document.getElementById("list"),q=document.getElementById("q"),count=document.getElementById("count"),foot=document.getElementById("foot");
+
+function compose(){
+  ctx.drawImage(baseCv,0,0);
+  let s=tick*131+7;const rnd=()=>(s=(s*16807)%2147483647)/2147483647;
+  ctx.fillStyle=C.w3;for(let i=0;i<Math.min(80,water.length);i++){const[x,y]=water[Math.floor(rnd()*water.length)];ctx.fillRect(x,y,2,1)}
+  ctx.fillStyle=C.foam;fallPts.forEach(([x,y])=>{if((y+tick)%3===0)ctx.fillRect(x-3+((y+tick)%7),y,1,1)});
+  foamLine.forEach(([x,y])=>{const o=Math.round(1.5*Math.sin(x/6+tick*.8));ctx.fillRect(x,y+o,1,1)});
+  if(night){ctx.fillStyle="rgba(18,22,70,.55)";ctx.fillRect(0,0,W,H);
+    windows.forEach(([x,y,w,h])=>{ctx.fillStyle="rgba(255,210,100,.25)";ctx.fillRect(x-2,y-2,w+4,h+4);ctx.fillStyle=C.glow;ctx.fillRect(x,y,w,h)});
+    ctx.fillStyle="#fff7c8";for(let i=0;i<14;i++){const x=(i*97+tick*2)%W,y=(i*53)%50+4;if((i+tick)%3)ctx.fillRect(x,y,1,1)}}
+}
+function render(){
+  const d=DATA[cur];sel=-1;water=[];windows=[];foamLine=[];fallPts=[];
+  const E=painter({rsv:1,sve:2,town:3}[cur],d);
+  const all=[...d.houses.map((h,i)=>({h,i})),...(d.extras||[]).map(h=>({h,i:-1}))];
+  all.forEach(({h})=>{const sp=E.specOf(h);const w=({tower:16,tiny:12,busstop:26,cave:20,trailer:34,tent:22,grate:12}[h.t]||sp.w||20)+6;const ht=h.t==="tower"?42:30;E.M(h.x-w/2,h.y-ht,w,ht+4,2)});
+  d.draw(E.P);
+  tops=[];
+  all.forEach(({h,i})=>E.queue({y:h.y,bld:1,f:()=>{const t=E.building(h);if(i>=0)tops[i]=t}}));
+  E.flushSprites();
+  compose();
+  stage.querySelectorAll(".tag,.badge,.pop").forEach(e=>e.remove());list.innerHTML="";
+  const pop=document.createElement("div");pop.className="pop";pop.id="pop";pop.hidden=true;stage.appendChild(pop);
+  d.labels.forEach(([t,x,y,big])=>{const e=document.createElement("span");e.className="tag"+(big?" big":" sm");e.textContent=t;e.style.left=x/4+"%";e.style.top=y/3.1+"%";stage.appendChild(e)});
+  d.houses.forEach((h,i)=>{
+    const bt=document.createElement("button");bt.className="badge";bt.textContent=i+1;bt.dataset.i=i;
+    bt.style.left=h.x/4+"%";bt.style.top=Math.max(9,tops[i]-9)/3.1+"%";bt.title=h.n+": "+h.p.join(", ");bt.setAttribute("aria-label",bt.title);
+    bt.addEventListener("click",()=>select(i,true));stage.appendChild(bt);
+    const it=document.createElement("div");it.className="item";it.tabIndex=0;it.dataset.i=i;
+    it.innerHTML=`<span class="num">${i+1}</span><div><b>${h.n}</b><span class="where">${h.w}</span><div class="people">${h.p.map(n=>`<span class="p${(h.u||[]).includes(n)?" u":""}${ROM[cur].includes(n)?" r":""}" data-g="${(GIFTS[base(n)]||"").toLowerCase()}">${n}</span>`).join("")}</div>${h.p.map(n=>{const g=gl(n),nt=GNOTE[base(n)];return g.length||nt?`<div class="g"><span>${base(n)}</span> ${g.length?g.join(", "):`<i>${nt}</i>`}</div>`:""}).join("")}</div>`;
+    it.addEventListener("click",()=>select(i,false));
+    it.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();select(i,false)}});
+    list.appendChild(it);
+  });
+  foot.textContent=d.foot;
+  document.querySelectorAll("[data-map]").forEach(bn=>bn.setAttribute("aria-selected",bn.dataset.map===cur));
+  filter();
+}
+function select(i,fromMap){
+  sel=(sel===i)?-1:i;
+  stage.querySelectorAll(".badge").forEach(bt=>bt.classList.toggle("on",+bt.dataset.i===sel));
+  list.querySelectorAll(".item").forEach(it=>it.classList.toggle("on",+it.dataset.i===sel));
+  const pop=document.getElementById("pop");
+  if(sel<0){pop.hidden=true;return}
+  const h=DATA[cur].houses[sel];
+  const rows=h.p.map(n=>{const g=gl(n);const u=(h.u||[]).includes(n)?" *":"";const nt=GNOTE[base(n)];
+    const txt=g.length?`Loves: ${g.slice(0,3).join(", ")}${g.length>3?` <i>+${g.length-3} more in the list</i>`:""}`:(nt||"");
+    return `<div class="res"><b class="${ROM[cur].includes(n)?"r":""}">${n}${u}</b>${txt?`<div class="gl">${txt}</div>`:""}</div>`}).join("");
+  pop.innerHTML=`<button class="x" aria-label="Close">&times;</button><h3>${h.n}</h3><div class="where">${h.w}</div>${rows}`;
+  pop.querySelector(".x").addEventListener("click",()=>select(sel,true));
+  const tx=h.x<85?"0%":h.x>315?"-100%":"-50%";const below=h.y<150;
+  pop.style.left=h.x/4+"%";pop.style.top=(below?h.y+4:tops[sel]-14)/3.1+"%";
+  pop.style.transform=`translate(${tx},${below?"0":"-100%"})`;
+  pop.hidden=false;
+  if(!fromMap)stage.scrollIntoView({block:"nearest",behavior:"smooth"});
+}
+function filter(){
+  const v=q.value.trim().toLowerCase();let hits=0,total=0;const act=!!v||romOn;
+  list.querySelectorAll(".item").forEach(it=>{
+    let m=false;
+    it.querySelectorAll(".p").forEach(p=>{total++;const h=act&&(!v||p.textContent.toLowerCase().includes(v)||p.dataset.g.includes(v))&&(!romOn||p.classList.contains("r"));p.classList.toggle("hit",!!h);if(h){m=true;hits++}});
+    it.classList.toggle("dim",act&&!m);
+    stage.querySelector(`.badge[data-i="${it.dataset.i}"]`).classList.toggle("dim",act&&!m);
+  });
+  count.textContent=act?(hits?`${hits} match${hits>1?"es":""}`:"Nobody matches here. Try the other tab."):`${total} residents`;
+}
+document.querySelectorAll("[data-map]").forEach(bn=>bn.addEventListener("click",()=>{cur=bn.dataset.map;try{localStorage.setItem("vra-tab",cur)}catch(e){}render()}));
+q.addEventListener("input",filter);
+document.getElementById("rom").addEventListener("click",e=>{romOn=!romOn;e.currentTarget.setAttribute("aria-pressed",romOn);filter()});
+const nb=document.getElementById("night");nb.setAttribute("aria-pressed",night);
+nb.addEventListener("click",()=>{night=!night;nb.setAttribute("aria-pressed",night);try{localStorage.setItem("vra-night",night?"1":"0")}catch(e){}compose()});
+render();
+if(!reduce)setInterval(()=>{tick++;compose()},450);
+</script>
+
+</html>
