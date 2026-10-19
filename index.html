@@ -31,7 +31,10 @@ h2{font-family:var(--display);font-weight:700;font-size:1.3rem;margin:0;color:va
 .btn[aria-selected="true"],.btn[aria-pressed="true"]{background:var(--gold);color:var(--gold-ink);box-shadow:inset 0 -4px 0 #d8a91e,3px 3px 0 var(--wood-lo)}
 .btn:active{transform:translate(2px,2px);box-shadow:1px 1px 0 var(--wood-lo)}
 #rom[aria-pressed="true"]{background:var(--pin);color:#fff;box-shadow:inset 0 -4px 0 #8e2620,3px 3px 0 var(--wood-lo)}
-#night[aria-pressed="true"]{background:#2b2f6b;color:#fff3c4;box-shadow:inset 0 -4px 0 #1a1d48,3px 3px 0 var(--wood-lo)}
+.tabs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.tabs .btn{width:100%;padding:9px 6px;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.swipe{display:none;margin:-6px 0 0;color:#fff3c4;font-size:13px;text-align:center}
+@media (max-width:720px){.tabs .opt{display:none}.tabs{gap:6px}.tabs .btn{font-size:13px;padding:8px 4px}.swipe{display:block}}
 .spacer{flex:1}
 #q{flex:1 1 240px;min-width:0;font:inherit;padding:8px 12px;border:4px solid var(--wood);background:var(--paper);color:var(--ink);box-shadow:inset 3px 3px 0 var(--paper2);border-radius:3px}
 #q::placeholder{color:var(--ink-soft)}
@@ -92,13 +95,12 @@ i{color:var(--ink-soft)}
     <p class="lede">Every villager in Pelican Town, the Expanded valley and Ridgeside Village, shown where they live. Tap a name on the map for loved gifts, or search below.</p>
   </header>
 
-  <div class="controls">
+  <div class="tabs" role="tablist" aria-label="Choose a map">
     <button class="btn" role="tab" aria-selected="false" data-map="town">Pelican Town</button>
-    <button class="btn" role="tab" aria-selected="false" data-map="sve">The Valley (Expanded)</button>
-    <button class="btn" role="tab" aria-selected="false" data-map="rsv">Ridgeside Village</button>
-    <span class="spacer"></span>
-    <button class="btn" id="night" aria-pressed="false">&#9790; Night</button>
+    <button class="btn" role="tab" aria-selected="false" data-map="sve">The Valley<span class="opt"> (Expanded)</span></button>
+    <button class="btn" role="tab" aria-selected="false" data-map="rsv">Ridgeside<span class="opt"> Village</span></button>
   </div>
+  <p class="swipe">Swipe the map sideways to see all of it.</p>
 
   <div class="box mapframe" id="mapbox"><div class="stage" id="stage"><canvas id="cv" aria-label="Map of villager homes"></canvas></div></div>
 
@@ -472,9 +474,8 @@ Object.entries(DATA).forEach(([mk,m])=>m.houses.forEach((h,i)=>h.p.forEach(n=>PE
 PEOPLE.sort((a,c)=>base(a.n).localeCompare(base(c.n)));
 
 /* ---------- UI ---------- */
-let cur="town",sel=-1,romOn=false,night=false,tick=0,tops=[],mapFilter="all";
+let cur="town",sel=-1,romOn=false,tick=0,tops=[],mapFilter="all";
 try{const s0=localStorage.getItem("vra-tab2");if(s0&&DATA[s0])cur=s0}catch(e){}
-try{night=localStorage.getItem("vra-night")==="1"}catch(e){}
 const reduce=matchMedia("(prefers-reduced-motion: reduce)").matches;
 const stage=document.getElementById("stage"),q=document.getElementById("q"),count=document.getElementById("count"),foot=document.getElementById("foot"),dir=document.getElementById("dir");
 
@@ -484,8 +485,6 @@ function compose(){
   ctx.fillStyle=C.w3;for(let i=0;i<Math.min(140,water.length);i++){const[x,y]=water[Math.floor(rnd()*water.length)];ctx.fillRect(x,y,2,1)}
   ctx.fillStyle=C.foam;fallPts.forEach(([x,y])=>{if((y+tick)%3===0)ctx.fillRect(x-3+((y+tick)%7),y,1,1)});
   foamLine.forEach(([x,y])=>{if((x+tick)%4<2)ctx.fillRect(x,y,1,1)});
-  if(night){ctx.fillStyle="rgba(18,22,70,.55)";ctx.fillRect(0,0,W,H);
-    windows.forEach(([x,y,w,h])=>{ctx.fillStyle="rgba(255,210,100,.25)";ctx.fillRect(x-2,y-2,w+4,h+4);ctx.fillStyle=C.glow;ctx.fillRect(x,y,w,h)});}
 }
 const pct=(x,y)=>({left:(x/W*100)+"%",top:(y/H*100)+"%"});
 function render(){
@@ -556,8 +555,6 @@ document.querySelectorAll("[data-map]").forEach(bn=>bn.addEventListener("click",
 document.querySelectorAll("[data-filter]").forEach(bn=>bn.addEventListener("click",()=>{mapFilter=bn.dataset.filter;document.querySelectorAll("[data-filter]").forEach(x=>x.setAttribute("aria-pressed",x===bn));filter()}));
 q.addEventListener("input",filter);
 document.getElementById("rom").addEventListener("click",e=>{romOn=!romOn;e.currentTarget.setAttribute("aria-pressed",romOn);filter()});
-const nb=document.getElementById("night");nb.setAttribute("aria-pressed",night);
-nb.addEventListener("click",()=>{night=!night;nb.setAttribute("aria-pressed",night);try{localStorage.setItem("vra-night",night?"1":"0")}catch(e){}compose()});
 render();
 if(!reduce)setInterval(()=>{tick++;compose()},450);
 </script>
