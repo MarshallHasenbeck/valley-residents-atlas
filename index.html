@@ -17,19 +17,42 @@
 /* Layout: cozy farm-game screen. Full-width pixel map with resident name tags drawn on it, then a searchable villager directory below. Parchment panels in wooden frames over a dusk-blue backdrop. */
 :root{
   --bg:#1e3a4c; --bg2:#244659; --paper:#f3dcaa; --paper2:#e9cb8e; --ink:#3e2410; --ink-soft:#6e4a2a;
-  --wood:#7b4a24; --wood-hi:#c98a4e; --wood-lo:#3e2210; --gold:#ffd23f; --gold-ink:#3a2600; --pin:#c8392f; --leaf:#3f7f28;
+  --wood:#7b4a24; --wood-hi:#c98a4e; --wood-lo:#3e2210; --gold:#ffd23f; --gold-ink:#3a2600; --pin:#c8392f; --leaf:#2d6a1a;
   --display:"Pixelify Sans","Courier New",monospace;
   --body:"Atkinson Hyperlegible",system-ui,-apple-system,"Segoe UI",sans-serif;
   color-scheme:light;
 }
 *{box-sizing:border-box}
-body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.45;
-  background-image:linear-gradient(45deg,var(--bg2) 25%,transparent 25%,transparent 75%,var(--bg2) 75%),linear-gradient(45deg,var(--bg2) 25%,transparent 25%,transparent 75%,var(--bg2) 75%);
-  background-size:32px 32px;background-position:0 0,16px 16px}
-.wrap{max-width:1240px;margin:0 auto;padding-inline:16px;padding-block:20px 44px;display:grid;gap:16px}
+body{background:#122638;color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.45}
+/* Dusk sky behind everything: stars, a soft moon glow, and a strip of grass at the bottom. Fixed layers so it never scrolls or shifts on phones. */
+body::before{content:"";position:fixed;inset:0;z-index:-2;pointer-events:none;background:
+   radial-gradient(2px 2px at 12% 14%,#fff6cf 98%,transparent),
+   radial-gradient(1.5px 1.5px at 27% 8%,#fff6cf 98%,transparent),
+   radial-gradient(1.5px 1.5px at 41% 19%,#fff6cf 98%,transparent),
+   radial-gradient(1.5px 1.5px at 58% 6%,#fff6cf 98%,transparent),
+   radial-gradient(2px 2px at 73% 16%,#fff6cf 98%,transparent),
+   radial-gradient(1.5px 1.5px at 90% 9%,#fff6cf 98%,transparent),
+   radial-gradient(1.5px 1.5px at 6% 32%,#fff6cf 98%,transparent),
+   radial-gradient(1.5px 1.5px at 22% 41%,#fff6cf 98%,transparent),
+   radial-gradient(2px 2px at 48% 34%,#fff6cf 98%,transparent),
+   radial-gradient(1.5px 1.5px at 66% 29%,#fff6cf 98%,transparent),
+   radial-gradient(1.5px 1.5px at 84% 38%,#fff6cf 98%,transparent),
+   radial-gradient(1.5px 1.5px at 95% 27%,#fff6cf 98%,transparent),
+   radial-gradient(2px 2px at 35% 52%,#fff6cf 98%,transparent),
+   radial-gradient(1.5px 1.5px at 78% 50%,#fff6cf 98%,transparent),
+   radial-gradient(1.5px 1.5px at 15% 60%,#fff6cf 98%,transparent),
+   radial-gradient(1.5px 1.5px at 55% 58%,#fff6cf 98%,transparent),
+   radial-gradient(2px 2px at 92% 56%,#fff6cf 98%,transparent),
+   radial-gradient(1.5px 1.5px at 8% 74%,#fff6cf 98%,transparent),
+   radial-gradient(1.5px 1.5px at 63% 70%,#fff6cf 98%,transparent),
+   radial-gradient(circle at 86% 9%,rgba(255,236,170,.30),rgba(255,236,170,0) 26%),
+   linear-gradient(0deg,#25521f 0,#3f7f28 5vh,rgba(63,127,40,.55) 11vh,rgba(63,127,40,0) 22vh),
+   linear-gradient(180deg,#0d1c2c 0%,#173149 38%,#2b5a74 72%,#4c8184 100%)}
+body::after{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;background:repeating-conic-gradient(rgba(255,255,255,.035) 0 25%,rgba(0,0,0,0) 0 50%) 0 0/16px 16px;opacity:.9}
+.wrap{max-width:1240px;margin:0 auto;padding-inline:16px;padding-block:20px 44px;display:grid;grid-template-columns:minmax(0,1fr);gap:16px}
 html{scroll-behavior:auto}
 .box{background:var(--paper);border:6px solid var(--wood);box-shadow:inset 0 0 0 3px var(--paper2),0 0 0 3px var(--wood-lo),0 0 0 6px var(--wood-hi),8px 10px 0 6px rgba(0,0,0,.35);padding:14px;border-radius:4px}
-h1{font-family:var(--display);font-weight:700;font-size:clamp(1.7rem,4.4vw,2.6rem);margin:0;color:var(--leaf);text-shadow:3px 3px 0 #1f3a12,-1px -1px 0 #fff3c4;text-wrap:balance}
+h1{font-family:var(--display);font-weight:700;font-size:clamp(1.9rem,5vw,2.9rem);line-height:1.05;letter-spacing:.03em;margin:0;color:#1f4a10;text-shadow:2px 2px 0 #fff3c4;text-wrap:balance}
 h2{font-family:var(--display);font-weight:700;font-size:1.3rem;margin:0;color:var(--leaf)}
 .lede{margin:4px 0 0;max-width:68ch}
 .controls{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
@@ -45,7 +68,7 @@ h2{font-family:var(--display);font-weight:700;font-size:1.3rem;margin:0;color:va
   .wrap{padding-inline:10px;padding-block:10px 20px;gap:12px}
   body{padding-bottom:calc(76px + env(safe-area-inset-bottom))}
   .head{padding:8px 12px}
-  .head h1{font-size:1.45rem}
+  .head h1{font-size:1.85rem}
   .lede{display:none}
   .searchbar{padding:6px;gap:6px;top:0}
   .heart .opt,.tabs .opt{display:none}
