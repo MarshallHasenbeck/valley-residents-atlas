@@ -50,6 +50,8 @@ h2{font-family:var(--display);font-weight:700;font-size:1.3rem;margin:0;color:va
   .searchbar{padding:6px;gap:6px;top:0}
   .heart .opt,.tabs .opt{display:none}
   .tabs .btn[data-map="rsv"] .mo{display:none}
+  .when .seg{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .when{padding:8px 10px}
   .tabs{position:fixed;left:0;right:0;bottom:0;z-index:40;grid-template-columns:repeat(calc(var(--n,3) + 1),minmax(0,1fr));gap:5px;padding:8px 8px calc(8px + env(safe-area-inset-bottom));background:var(--wood-lo);border-top:4px solid var(--wood);box-shadow:0 -4px 0 rgba(0,0,0,.25)}
   .tabs .btn{font-size:12.5px;padding:0 2px;min-height:46px}
   .tabs .mo{display:none}
@@ -92,6 +94,20 @@ mark{background:var(--gold);color:var(--gold-ink);border-radius:2px;padding:0 2p
 .sugg .btn{font-size:14px;padding:8px 12px;min-height:40px}
 button:focus-visible,#q:focus-visible{outline:3px solid var(--gold);outline-offset:3px}
 .tabs .only-m{display:none}
+.when{padding:10px 12px;display:grid;gap:8px}
+.whenhead{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.whenhead h2{font-size:1.1rem}
+.seg{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px}
+.seg .btn{padding:8px 4px;min-height:44px;text-align:center}
+.whenopts{display:flex;flex-wrap:wrap;gap:10px}
+.whenopts label{display:flex;align-items:center;gap:6px;font-size:14px;font-weight:700}
+.whenopts select{font:inherit;font-size:16px;min-height:40px;padding:0 8px;border:3px solid var(--wood);background:var(--paper);color:var(--ink);border-radius:3px}
+.whenline{margin:0;font-size:13.5px;color:var(--ink-soft)}
+.whenaway{margin:0;font-size:13px;color:var(--ink);background:#fbeccb;border:2px dashed var(--paper2);border-radius:4px;padding:6px 8px}
+.ntag.spot{background:#e3f1f8;border-color:#2b74bd}
+.ntag.spot:hover,.ntag.spot.on{background:var(--gold)}
+.nowline{font-size:13.5px;font-weight:700;color:var(--leaf)}
+.ntag.nodata{opacity:.9}
 .modline{display:flex;gap:8px;align-items:center;justify-content:space-between;margin-top:8px;font-size:14px;color:var(--ink-soft)}
 .modline #modsum{font-weight:700;color:var(--ink);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .modline .btn{flex:none}
@@ -197,6 +213,23 @@ i{color:var(--ink-soft)}
     <button class="btn" role="tab" aria-selected="false" data-map="es"><span class="opt">East </span>Scarp</button>
     <button class="btn only-m" type="button" id="tolist">Lists</button>
   </nav>
+  <section class="box when" id="when" aria-label="Where is everyone?">
+    <div class="whenhead"><h2>Where is everyone?</h2><button class="btn small" id="whenopt" type="button" aria-expanded="false" aria-controls="whenopts">Change day</button></div>
+    <div class="seg" id="seg" role="group" aria-label="Time of day">
+      <button class="btn" type="button" data-t="home" aria-pressed="true">Home</button>
+      <button class="btn" type="button" data-t="0" aria-pressed="false">Morning</button>
+      <button class="btn" type="button" data-t="1" aria-pressed="false">Afternoon</button>
+      <button class="btn" type="button" data-t="2" aria-pressed="false">Evening</button>
+      <button class="btn" type="button" data-t="3" aria-pressed="false">Night</button>
+    </div>
+    <div class="whenopts" id="whenopts" hidden>
+      <label>Season <select id="wseason"><option value="0">Spring</option><option value="1">Summer</option><option value="2">Fall</option><option value="3">Winter</option></select></label>
+      <label>Day <select id="wdow"><option value="0">Monday</option><option value="1">Tuesday</option><option value="2">Wednesday</option><option value="3">Thursday</option><option value="4">Friday</option><option value="5">Saturday</option><option value="6">Sunday</option></select></label>
+      <label>Weather <select id="wrain"><option value="0">Sunny</option><option value="1">Rainy</option></select></label>
+    </div>
+    <p class="whenline" id="whenline"></p>
+    <p class="whenaway" id="whenaway" hidden></p>
+  </section>
   <p class="swipe" id="swipe">Swipe the map sideways to see all of it.</p>
 
   <div class="box mapframe" id="mapbox"><div class="stage" id="stage"><canvas id="cv" aria-label="Map of villager homes"></canvas></div></div>
@@ -263,6 +296,14 @@ Object.assign(GIFTS,ESG);
 /* Birthdays: [season index 0-3, day]. Season 0 Spring, 1 Summer, 2 Fall, 3 Winter. Read from each mod's own data files. */
 const BDAY={"Abigail":[2,13],"Alex":[1,13],"Caroline":[1,7],"Clint":[3,26],"Demetrius":[1,19],"Dwarf":[1,22],"Elliott":[2,5],"Emily":[0,27],"Evelyn":[3,20],"George":[2,24],"Gus":[1,8],"Haley":[0,14],"Harvey":[3,14],"Jas":[1,4],"Jodi":[2,11],"Kent":[0,4],"Krobus":[3,1],"Leah":[3,23],"Lewis":[0,7],"Linus":[3,3],"Marnie":[2,18],"Maru":[1,10],"Pam":[0,18],"Penny":[2,2],"Pierre":[0,26],"Robin":[2,21],"Sam":[1,17],"Sandy":[2,15],"Sebastian":[3,10],"Shane":[0,20],"Vincent":[0,10],"Willy":[1,24],"Magnus":[3,17],"Leo":[1,26],"Gunther":[3,12],"Marlon":[3,19],"Andy":[0,23],"Claire":[2,8],"Lance":[0,8],"Martin":[1,6],"Morgan":[2,7],"Morris":[0,2],"Olivia":[0,15],"Scarlett":[1,7],"Sophia":[3,27],"Susan":[2,28],"Victor":[1,23],"Richard":[2,3],"Ysabelle":[0,11],"Flor":[1,14],"Philip":[0,17],"Ian":[2,14],"Sean":[0,22],"Kenneth":[1,18],"Paula":[2,27],"Lenny":[1,16],"Maddie":[2,23],"Corine":[2,26],"Ezekiel":[0,12],"Lorenzo":[2,1],"Anton":[0,9],"Kiarra":[1,13],"Shanice":[3,26],"Jeric":[3,2],"Bryle":[1,1],"Naomi":[0,18],"Shiro":[3,28],"Yuuma":[2,4],"Faye":[1,12],"Pika":[3,21],"Keahi":[3,11],"Carmen":[2,21],"Blair":[3,5],"Freddie":[3,18],"Lola":[1,2],"Maive":[0,14],"Zayne":[2,2],"Ariah":[2,4],"Louie":[3,16],"Sonny":[0,28],"Irene":[3,27],"Mr. Aguar":[1,25],"Alissa":[0,5],"Malaya":[1,27],"Kimpoi":[2,5],"Trinnie":[0,16],"Olga":[1,9],"Bert":[0,28],"Torts":[0,1],"June":[2,12],"Aideen":[1,21],"Beatrice":[0,17],"Eloise":[0,22],"Eyvinder":[3,15],"Jacob":[1,27],"Jessie":[1,1],"Juliet":[0,15],"Lexi":[1,12],"Oliver":[1,6],"Rosa":[2,7],"Victoria":[3,6],"Vivienne":[2,14],"Kennedy":[2,6],"Luma":[1,4],"Jasper":[2,22],"Corwin":[1,14],"Edith":[3,15],"Michael":[2,7],"Ethan":[2,10],"Stella":[3,22],"Dale":[0,25],"Keanu":[2,3],"Jade":[3,4],"Tristan":[1,20]};
 const SEASONS=["Spring","Summer","Fall","Winter"];
+const SCHED={"Kent":{"rain":"830 SamHouse,1400 Town,1700 SamHouse,2100 Town,2300 SamHouse","Fri":"700 Town,1030 SamHouse,1400 Town,1700 Saloon,2350 SamHouse","Sat":"700 Town,1030 SamHouse,1400 Town,1700 Saloon,2350 SamHouse","Sun":"800 SamHouse,1010 SeedShop,1600 SamHouse,2100 Town,2300 SamHouse","spring":"700 Town,1030 SamHouse,1400 Town,1700 SamHouse,2100 Town,2300 SamHouse"},"Penny":{"rain":"900 Trailer","summer":"810 Town,1800 Trailer","winter":"900 Trailer,1030 CommunityCenter,1800 Trailer","Tue":"830 Trailer,900 ArchaeologyHouse,1400 Town,1750 Forest,1830 Trailer","Wed":"830 Trailer,900 ArchaeologyHouse,1400 Town,1750 Forest,1830 Trailer","Fri":"830 Trailer,900 ArchaeologyHouse,1400 Town,1750 Forest,1830 Trailer","Sat":"1000 Town,2000 Trailer","spring":"800 Town,1230 Trailer,1600 Town,1840 Trailer"},"Alex":{"rain":"800 JoshHouse,1600 Town,1830 JoshHouse","winter":"900 BathHouse_MensLocker,1500 JoshHouse,1800 Town,1930 JoshHouse","Wed":"800 Town,1200 HaleyHouse,1630 Town,1840 JoshHouse","summer":"730 Beach,1200 Town,1700 JoshHouse","spring":"800 Town,1300 JoshHouse,1600 Town,1830 JoshHouse"},"Evelyn":{"rain":"800 JoshHouse","winter":"800 JoshHouse","Thu":"800 JoshHouse,1210 CommunityCenter,1630 JoshHouse","Sat":"800 JoshHouse,1210 CommunityCenter,1630 JoshHouse","Mon":"800 JoshHouse,1210 CommunityCenter,1630 JoshHouse","spring":"800 JoshHouse,1300 Town,1630 JoshHouse","summer":"800 JoshHouse,1300 Town,1630 JoshHouse"},"Haley":{"rain":"830 HaleyHouse","winter":"830 HaleyHouse","Wed":"900 HaleyHouse","summer":"840 HaleyHouse,1030 Beach,1330 Town,1700 HaleyHouse","spring_Mon":"800 HaleyHouse,1100 Forest,1630 HaleyHouse","fall_Mon":"800 HaleyHouse,1100 Forest,1630 HaleyHouse","spring":"900 HaleyHouse,1100 Town,1630 HaleyHouse"},"Lewis":{"rain":"800 ManorHouse,1400 Saloon,1950 ManorHouse","Tue":"800 ManorHouse,1000 Town,1140 SeedShop,1600 ManorHouse","Fri":"800 ManorHouse,1000 Town,1700 Saloon,2300 ManorHouse","winter_Sun":"800 ManorHouse,1100 Library,1600 ManorHouse","fall_Sun":"800 ManorHouse,930 Town,1110 Forest,1600 ManorHouse","summer_Sun":"800 ManorHouse,1000 Town,1140 Beach,1600 ManorHouse","spring":"800 ManorHouse,900 Town,1040 CommunityCenter,1830 ManorHouse","default":"800 ManorHouse,1000 Town,1600 ManorHouse"},"Jodi":{"rain":"800 SamHouse","Tue":"800 SamHouse,1000 SeedShop,1800 SamHouse","Wed":"800 SamHouse,1100 JojaMart,1700 SamHouse","Fri":"800 SamHouse,1100 JojaMart,1700 SamHouse","Sat":"800 SamHouse,1100 CommunityCenter,1700 SamHouse","Sun":"800 SamHouse,1000 SeedShop,1600 SamHouse","spring":"800 SamHouse,1330 Town,1600 SamHouse"},"Linus":{"rain":"700 Tent,930 Mountain,1010 Tent,1500 Mountain,1900 Tent","summer":"630 Mountain,2020 Tent","fall":"700 Mountain,900 Railroad,1400 Mountain,1800 Tent","winter":"1100 Mountain,1400 BathHouse_Entry,1800 Tent","spring":"630 Mountain,1900 Tent"},"Sam":{"rain":"1000 SamHouse","summer":"1000 SamHouse,1340 Beach,1900 SamHouse","fall":"1000 SamHouse,1320 Forest,1900 SamHouse","winter":"1000 SamHouse,1320 Saloon,1900 SamHouse","Sat":"800 Town,1230 SamHouse,1800 Town,1940 SamHouse","Mon":"1000 SamHouse,1100 JojaMart,1600 SamHouse","Wed":"1000 SamHouse,1100 JojaMart,1600 SamHouse","Fri":"1000 SamHouse,1100 Town,1500 Saloon,2120 SamHouse","spring":"1000 SamHouse,1340 Town,1830 SamHouse"},"Harvey":{"rain":"800 HarveyRoom,840 Hospital,1200 HarveyRoom,1730 Saloon,2200 HarveyRoom","Tue":"730 Hospital,1800 HarveyRoom","Thu":"730 Hospital,1800 HarveyRoom","Fri":"700 HarveyRoom,830 Hospital,1200 SeedShop,1500 HarveyRoom","Sat":"700 HarveyRoom,830 ArchaeologyHouse,1500 HarveyRoom","winter":"800 HarveyRoom,840 Hospital,1200 HarveyRoom,1730 Saloon,2200 HarveyRoom","fall":"700 HarveyRoom,830 Hospital,1200 Town,1700 HarveyRoom","summer":"700 HarveyRoom,830 Hospital,1200 Town,1730 Hospital,1840 HarveyRoom","spring":"700 HarveyRoom,830 Hospital,1200 Town,1730 Hospital,1840 HarveyRoom"},"Robin":{"rain":"800 ScienceHouse","Mon":"800 ScienceHouse,1700 CommunityCenter,1940 ScienceHouse","Tue":"930 SeedShop,1800 ScienceHouse","Fri":"800 ScienceHouse,1600 Saloon,2100 ScienceHouse","spring":"800 ScienceHouse,1700 Mountain,1930 ScienceHouse"},"Shane":{"rain":"700 JojaMart,1700 Saloon,2300 AnimalShop","spring":"700 JojaMart,1700 Saloon,2300 AnimalShop","Sat":"700 AnimalShop,1200 SeedShop,1700 Saloon,2300 AnimalShop","Sun":"700 AnimalShop,1800 Saloon,2400 AnimalShop","summer_Sun":"700 AnimalShop,1800 Saloon,2400 AnimalShop","default":"900 AnimalShop,1400 Saloon,2300 AnimalShop"},"Demetrius":{"rain":"750 ScienceHouse","Fri":"750 ScienceHouse,1600 Saloon,2100 ScienceHouse","winter":"750 ScienceHouse","fall":"750 ScienceHouse,1100 Mountain,1900 ScienceHouse","summer":"750 ScienceHouse,1100 Town,1900 ScienceHouse","spring":"750 ScienceHouse,1430 Mountain,1900 ScienceHouse"},"Caroline":{"rain":"800 SeedShop","Tue":"800 SeedShop","Fri":"800 SeedShop,1000 Sunroom,1200 ArchaeologyHouse,1700 SeedShop","Wed":"800 SeedShop,1000 Sunroom,1200 Town,1700 SeedShop","Sat":"800 SeedShop,1100 CommunityCenter,1700 SeedShop","Sun":"900 SeedShop,1440 Town,1830 SeedShop","spring":"800 SeedShop,1000 Sunroom,1200 SeedShop,1330 Town,1600 SeedShop"},"Maru":{"rain":"800 ScienceHouse","Tue":"730 Hospital,1640 ScienceHouse","Thu":"730 Hospital,1640 ScienceHouse","Mon":"800 ScienceHouse,1330 Town,1830 ScienceHouse","Sun":"800 ScienceHouse,1330 Town,1830 ScienceHouse","winter":"800 ScienceHouse,1100 CommunityCenter,1600 ScienceHouse","summer":"800 ScienceHouse,1400 Mountain,2400 ScienceHouse","spring":"800 ScienceHouse,1400 Town,1800 ScienceHouse"},"Elliott":{"rain":"800 ElliottHouse","winter":"800 ElliottHouse,1130 ArchaeologyHouse,1730 ElliottHouse","fall":"800 ElliottHouse,1130 ArchaeologyHouse,1730 ElliottHouse","Thu":"800 ElliottHouse,1130 SeedShop,1730 ElliottHouse","Sun":"800 ElliottHouse,1100 Beach,1700 Saloon,2340 ElliottHouse","Fri":"800 ElliottHouse,1100 Beach,1700 Saloon,2340 ElliottHouse","summer":"800 ElliottHouse,1130 Forest,1800 ElliottHouse","spring":"800 ElliottHouse,1200 Beach,1330 ElliottHouse,1500 Town,1800 ElliottHouse"},"Vincent":{"rain":"900 SamHouse","summer":"900 SamHouse,1340 Beach,1900 SamHouse","Tue":"900 ArchaeologyHouse,1400 Town,1740 SamHouse","Wed":"900 ArchaeologyHouse,1400 Town,1740 SamHouse","Fri":"900 ArchaeologyHouse,1400 Town,1740 SamHouse","Sat":"1010 Town,2000 SamHouse","spring":"900 SamHouse,1400 Town,1700 SamHouse"},"Pam":{"rain":"800 Trailer,1200 JojaMart,1600 Saloon,2400 Trailer","spring":"800 Trailer,1200 JojaMart,1600 Saloon,2400 Trailer"},"Leah":{"rain":"900 LeahHouse,1600 Saloon,2340 LeahHouse","winter":"900 LeahHouse,1600 Saloon,2340 LeahHouse","fall":"900 LeahHouse,1200 Town,1900 LeahHouse","Mon":"900 LeahHouse,1100 SeedShop,1700 LeahHouse","Fri":"900 LeahHouse,1600 Saloon,2340 LeahHouse","Sat":"900 LeahHouse,1600 Saloon,2340 LeahHouse","summer":"900 LeahHouse,1200 Beach,1900 LeahHouse","spring":"900 LeahHouse,1200 Forest,1930 LeahHouse"},"Abigail":{"rain":"900 SeedShop","fall_Mon":"900 SeedShop,1100 Beach,1800 SeedShop","Sun":"900 SeedShop,1300 Forest,2000 SeedShop","Wed":"1000 ArchaeologyHouse,1800 Town,2200 SeedShop","Fri":"900 SeedShop,1500 Saloon,2100 SeedShop","fall":"900 SeedShop,1300 BusStop,1700 SeedShop","winter":"900 SeedShop,1030 ScienceHouse,1430 SeedShop","summer":"900 SeedShop,1030 Railroad,1400 Mountain,1740 SeedShop","spring":"900 SeedShop,1300 Town,1630 SeedShop"},"Clint":{"rain":"850 Blacksmith,1900 Saloon,2400 Blacksmith","Fri":"850 CommunityCenter,1700 Saloon,2400 Blacksmith","spring":"850 Blacksmith,1900 Saloon,2400 Blacksmith"},"Pierre":{"rain":"700 SeedShop","Fri":"700 SeedShop,1700 Saloon,2250 SeedShop","spring":"700 SeedShop"},"Willy":{"rain":"610 Beach,850 FishShop,1700 Saloon,2320 FishShop","winter":"610 Beach,850 FishShop,1700 Saloon,2320 FishShop","Sat":"610 Forest,1400 Town,1900 Saloon,2300 FishShop","Fri":"610 Beach,850 FishShop,1700 Saloon,2320 FishShop","spring":"610 Beach,850 FishShop,1700 Beach,2200 FishShop"},"Emily":{"rain":"900 HaleyHouse,1530 Saloon,2430 HaleyHouse","Tue":"900 HaleyHouse,1000 SeedShop,1600 Saloon,2430 HaleyHouse","Fri":"900 HaleyHouse,1000 CommunityCenter,1530 Saloon,2430 HaleyHouse","spring":"900 HaleyHouse,1530 Saloon,2430 HaleyHouse"},"Jas":{"rain":"900 AnimalShop","summer":"900 AnimalShop,1100 Forest,1320 Beach,1600 AnimalShop","Tue":"900 ArchaeologyHouse,1400 Town,1750 AnimalShop","Wed":"900 ArchaeologyHouse,1400 Town,1750 AnimalShop","Fri":"900 ArchaeologyHouse,1400 Town,1750 AnimalShop","Sat":"1000 Town,2000 AnimalShop","spring":"900 AnimalShop,1100 Forest,1500 AnimalShop"},"Marnie":{"rain":"830 AnimalShop","Tue":"900 AnimalShop,1000 SeedShop,1810 AnimalShop","Mon":"810 SeedShop,1200 AnimalShop","Wed":"830 AnimalShop,1700 Saloon,2300 AnimalShop","Fri":"830 AnimalShop,1700 Saloon,2300 AnimalShop","Sat":"830 AnimalShop,1700 Saloon,2300 AnimalShop","Sun":"830 AnimalShop,1700 Saloon,2300 AnimalShop","spring":"830 AnimalShop"},"George":{"rain":"630 JoshHouse","summer_Fri":"630 JoshHouse,1200 Town,1500 JoshHouse","Sun":"630 JoshHouse,1000 SeedShop,1400 JoshHouse","spring":"630 JoshHouse"},"Gus":{"rain":"800 Saloon","Mon":"800 SeedShop,1100 Saloon","Tue":"800 Saloon,830 CommunityCenter,1230 Saloon","spring":"800 Saloon","Sun":"800 Saloon"},"Sebastian":{"rain":"1030 Beach,1700 SebastianRoom","fall":"1030 SebastianRoom,1200 Mountain,1600 ScienceHouse,1730 SebastianRoom","Sat":"900 Town,1230 SamHouse,1800 Town,1930 SebastianRoom","Thu":"1030 SebastianRoom,1400 Railroad,2130 SebastianRoom","Fri":"1030 SebastianRoom,1500 Saloon,2110 SebastianRoom","spring":"1030 SebastianRoom,1500 ScienceHouse,1530 SebastianRoom,1830 Mountain,2130 SebastianRoom","default":"1030 SebastianRoom,1500 ScienceHouse,1530 SebastianRoom,1830 Mountain,2130 SebastianRoom"},"Aideen":{"rain":"700 EastScarp_AideenHouse,1600 EastScarp_Village,1800 EastScarp_AideenHouse","spring":"700 EastScarp_AideenHouse,900 EastScarp_Village,1600 EastScarp_AideenHouse","summer":"700 EastScarp_AideenHouse,900 EastScarp_Village,1700 EastScarp_AideenHouse","winter":"700 EastScarp_AideenHouse,1600 EastScarp_Village,1800 EastScarp_AideenHouse","fall":"700 EastScarp_AideenHouse,900 EastScarp_Village,1600 EastScarp_AideenHouse","Mon":"700 EastScarp_AideenHouse,900 EastScarp_Village,1600 EastScarp_AideenHouse","Tue":"700 EastScarp_AideenHouse,900 EastScarp_Village,1600 EastScarp_AideenHouse","Sun":"700 EastScarp_AideenHouse,900 Mountain,1600 EastScarp_AideenHouse","Thu":"700 EastScarp_AideenHouse,900 EastScarp_Village,1600 EastScarp_AideenHouse","Sat":"700 EastScarp_AideenHouse,900 EastScarp_Village,1600 EastScarp_AideenHouse"},"Lexi":{"rain":"0 EastScarp_Orchard","spring":"700 EastScarp_SeaCave","Sat":"700 EastScarp_SeaCave","Sun":"0 EastScarp_SeaCave"},"Victoria":{"rain":"800 EastScarp_Village,1000 EastScarp_ToriSlimeBasement,1700 EastScarp_NTHouse","Sat":"800 EastScarp_Village,1600 EastScarp_NTHouse","spring":"800 EastScarp_Village,1000 EastScarp_ToriSlimeBasement,1200 EastScarp_Village,1400 EastScarp_ToriSlimeBasement,1700 EastScarp_NTHouse","Tue":"800 EastScarp_Village,900 Town,1100 JojaMart,1340 Town,1800 EastScarp_NTHouse","Mon":"800 EastScarp_Village,1000 EastScarp_ToriSlimeBasement,1200 EastScarp_Village,1400 EastScarp_ToriSlimeBasement,1700 EastScarp_NTHouse"},"Ethan":{"default":"700 EastScarp_VillageInn,800 EastScarp_Village,1000 EastScarp_VillageInn","spring":"700 EastScarp_VillageInn,1530 EastScarp_Village,1800 EastScarp_VillageInn","rain":"700 EastScarp_VillageInn","Sun":"700 EastScarp_VillageInn,800 EastScarp_Village,1000 EastScarp_VillageInn","Sat":"620 EastScarp_VillageInn,700 EastScarp_Village,800 EastScarp_Crossing,1800 EastScarp_VillageInn"},"Jade":{"spring":"610 EastScarp_JessieHouse,800 EastScarp_Village,1100 Town,1230 EastScarp_Village,2000 EastScarp_JessieHouse","Mon":"610 EastScarp_JessieHouse,800 EastScarp_Village,1200 Town,1400 EastScarp_JessieHouse","Tue":"610 EastScarp_JessieHouse,800 EastScarp_Village,1400 EastScarp_JessieHouse","Wed":"610 EastScarp_JessieHouse,800 EastScarp_Village,1200 Town,1230 Forest,1400 EastScarp_JessieHouse","Thu":"610 EastScarp_JessieHouse,800 EastScarp_Village,1200 Town,1230 Mountain,1400 EastScarp_JessieHouse","Fri":"610 EastScarp_JessieHouse,800 EastScarp_Village,1200 EastScarp_Crossing,1400 EastScarp_JessieHouse","rain":"610 EastScarp_JessieHouse,800 EastScarp_VillageInn,2000 EastScarp_JessieHouse","winter":"610 EastScarp_JessieHouse,900 EastScarp_VillageInn,1200 EastScarp_Village,1400 EastScarp_JessieHouse"},"Corwin":{"spring":"610 EastScarp_Village,1100 Saloon,1700 EastScarp_LoresCove,2300 EastScarp_VillageInn","Wed":"610 EastScarp_Village,1100 Saloon,1700 EastScarp_FairyPool,2300 EastScarp_VillageInn","Fri":"610 EastScarp_Village,1000 Saloon,1400 EastScarp_DeepMountains,2300 EastScarp_VillageInn","Mon":"610 EastScarp_Village,1100 Saloon,1700 EastScarp_Orchard,2300 EastScarp_VillageInn","rain":"700 EastScarp_VillageInn,1000 EastScarp_Village,1700 Saloon,2100 EastScarp_VillageInn"},"Jacob":{"Tue":"920 Town,930 EastScarp_Village,1140 EastScarp_VetAwayWarpRoom,1810 EastScarp_VetHouse","rain":"700 EastScarp_VetHouse,900 EastScarp_Village,1200 EastScarp_VetHouse","Wed":"920 Town,1000 EastScarp_Village,1800 EastScarp_VetHouse","Fri":"920 Town,1000 Forest,1300 AnimalShop,1500 Town,1650 EastScarp_Village,1800 EastScarp_VetHouse","Sat":"700 EastScarp_VetHouse,900 EastScarp_Village,1350 Town,1740 EastScarp_VetHouse","Thu":"700 EastScarp_VetHouse,1040 EastScarp_Village,1800 EastScarp_VetHouse","Sun":"700 EastScarp_VetHouse,900 EastScarp_Village,1800 EastScarp_VetHouse","spring":"700 EastScarp_VetHouse,900 EastScarp_Village,1200 EastScarp_VetHouse"},"Tristan":{"Sat":"1000 Forest,1030 Town,1740 EastScarp_AideenHouse","summer_Sun":"900 Town,1200 EastScarp_Village,1600 EastScarp_AideenHouse","spring_Sun":"900 Town,1200 EastScarp_Village,1600 EastScarp_AideenHouse","winter_Sun":"900 Town,1200 EastScarp_Playhouse,1800 EastScarp_AideenHouse","fall_Sun":"900 Town,1200 EastScarp_Playhouse,1800 EastScarp_AideenHouse","rain":"900 EastScarp_AideenHouse","summer_Mon":"800 Forest,1320 Beach,1600 AnimalShop,1830 AdventureGuild","Mon":"800 Forest,1510 AnimalShop,2000 AdventureGuild","Tue":"800 EastScarp_AideenHouse,1100 EastScarp_Village,1700 Saloon,2200 AdventureGuild","Wed":"800 EastScarp_AideenHouse,1100 EastScarp_Village,1600 AnimalShop,2000 AdventureGuild","spring_Thu":"800 Forest,1510 AnimalShop,2000 AdventureGuild","summer_Thu":"800 Forest,1320 Beach,1600 AnimalShop,1800 WizardHouse","fall_Thu":"800 Forest,1510 AnimalShop,2000 AdventureGuild","winter_Thu":"800 Forest,1510 AnimalShop,2000 AdventureGuild","Fri":"800 EastScarp_AideenHouse,1100 EastScarp_Village,1600 AnimalShop,2120 AdventureGuild","fall_Sat":"700 Forest,1030 Town,1200 EastScarp_Village,1940 EastScarp_AideenHouse","Sun":"800 Town,1200 EastScarp_AideenHouse","Thu":"800 Forest,1510 AnimalShop,2000 AdventureGuild","spring":"610 Forest,1030 Town,1200 EastScarp_Village,2000 EastScarp_AideenHouse"},"Michael":{"spring":"620 EastScarp_VillageInn,1800 EastScarp_Village,1900 EastScarp_InnBath,2200 EastScarp_VillageInn","rain":"620 EastScarp_VillageInn","Sun":"620 EastScarp_VillageInn,1320 EastScarp_Village,1900 EastScarp_VillageInn","Wed":"620 EastScarp_VillageInn,1800 Saloon,2300 EastScarp_VillageInn","Fri":"620 EastScarp_VillageInn,930 SeedShop,1310 EastScarp_VillageInn,1900 EastScarp_InnBath,2300 EastScarp_VillageInn","summer":"0 EastScarp_FireTower,800 EastScarp_MtEvermore,1600 EastScarp_FireTower","summer_Wed":"0 EastScarp_FireTower,800 EastScarp_MtEvermore,1600 EastScarp_FireTower","summer_Fri":"0 EastScarp_FireTower,800 EastScarp_VillageInn,1400 EastScarp_FireTower","summer_Sat":"0 EastScarp_FireTower,800 EastScarp_MtEvermore,1600 EastScarp_FireTower","summer_Sun":"0 EastScarp_FireTower,800 EastScarp_MtEvermore,1600 EastScarp_FireTower"},"Oliver":{"rain":"0 EastScarp_VillageInn","spring":"0 EastScarp_VillageInn,1000 EastScarp_Village,1800 EastScarp_VillageInn","Tue":"0 EastScarp_VillageInn,1000 EastScarp_Village,1800 EastScarp_VillageInn","Sat":"0 EastScarp_VillageInn,1000 EastScarp_Village,1600 EastScarp_VillageInn","Sun":"0 EastScarp_VillageInn,1300 EastScarp_Village,1800 EastScarp_VillageInn"},"Beatrice":{"rain":"610 EastScarp_Lighthouse,1200 EastScarp_Village,1600 EastScarp_Lighthouse,1900 EastScarp_LanternRoom","Mon":"610 EastScarp_Lighthouse,1000 SeedShop,1400 Saloon,1700 EastScarp_LanternRoom","Sun":"610 EastScarp_Lighthouse,1800 EastScarp_LanternRoom","spring":"610 EastScarp_Lighthouse,1400 EastScarp_Village,1800 EastScarp_Lighthouse,1900 EastScarp_LanternRoom","fall":"610 EastScarp_Lighthouse,1200 EastScarp_Village,1700 EastScarp_Lighthouse,1830 EastScarp_LanternRoom","winter":"610 EastScarp_Lighthouse,1300 EastScarp_Village,1700 EastScarp_Lighthouse,1800 EastScarp_LanternRoom","summer":"610 EastScarp_Lighthouse,1100 EastScarp_Village,1500 EastScarp_Lighthouse,2000 EastScarp_LanternRoom","Sat":"610 EastScarp_Lighthouse,1400 EastScarp_Village,1800 EastScarp_Lighthouse,1900 EastScarp_LanternRoom"},"Stella":{"spring":"630 EastScarp_KenStellaHouse,1100 EastScarp_TNPCWaitingWarpRoom,1620 EastScarp_KenStellaHouse","rain":"630 EastScarp_KenStellaHouse,1100 EastScarp_TNPCWaitingWarpRoom,1620 EastScarp_KenStellaHouse","Sun":"0 EastScarp_VillageInn,1130 EastScarp_Village,1400 EastScarp_VillageInn,1630 Saloon,2000 EastScarp_KenStellaHouse","Sat":"630 EastScarp_KenStellaHouse,930 EastScarp_VillageInn,1300 SeedShop,1400 EastScarp_VillageInn"},"Dale":{"spring":"1000 EastScarp_Village,1200 EastScarp_DaleHouse,1800 EastScarp_Village,2200 EastScarp_DaleHouse","Mon":"1000 EastScarp_Village,1200 EastScarp_DaleHouse","Wed":"1000 EastScarp_Village,1200 EastScarp_DaleHouse","Fri":"1000 EastScarp_Village,1200 EastScarp_DaleHouse","rain":"1000 EastScarp_DaleHouse,1800 EastScarp_Village,2200 EastScarp_DaleHouse","Sat":"1000 EastScarp_DaleHouse,1200 EastScarp_Village,1510 EastScarp_DaleHouse","Sun":"1000 EastScarp_DaleHouse,1200 EastScarp_Village,1510 EastScarp_DaleHouse"},"Kataryna":{"spring":"610 EastScarp_KatarynaHouse","Mon":"900 ArchaeologyHouse,1130 Forest,1630 Saloon,2100 EastScarp_TNPCWaitingWarpRoom","summer_Mon":"900 ArchaeologyHouse,1130 Beach,1800 Saloon,2100 EastScarp_TNPCWaitingWarpRoom","fall_Mon":"900 ArchaeologyHouse,1030 Mountain,1800 Saloon,2100 EastScarp_TNPCWaitingWarpRoom","winter_Mon":"900 ArchaeologyHouse,1230 Saloon,1600 Beach,1920 EastScarp_TNPCWaitingWarpRoom","Tue":"0 EastScarp_JasperHouse,700 EastScarp_VillageInn,800 SeedShop,1200 EastScarp_JasperHouse","Wed":"0 EastScarp_JasperHouse,700 EastScarp_VillageInn,1100 EastScarp_Village,1400 EastScarp_JasperHouse,2000 EastScarp_TNPCWaitingWarpRoom","rain":"0 EastScarp_VillageInn,1000 Saloon,1400 EastScarp_Village,1900 EastScarp_VillageInn"},"Keanu":{"spring":"610 EastScarp_LoresCove,1000 EastScarp_KeanuHouse,1200 Saloon,1500 EastScarp_KeanuHouse,1700 EastScarp_LoresCove,2000 EastScarp_KeanuHouse"},"Juliet":{"rain":"620 EastScarp_JessieHouse,900 JojaMart,2300 EastScarp_JessieHouse","spring":"620 EastScarp_JessieHouse,900 JojaMart,1700 EastScarp_Village,2400 EastScarp_JessieHouse","Wed":"610 EastScarp_JessieHouse,900 JojaMart,1700 EastScarp_Village,2400 EastScarp_JessieHouse","Sat":"700 EastScarp_JessieHouse,1100 Beach,1800 Saloon,2400 EastScarp_JessieHouse","Sun":"700 EastScarp_JessieHouse,1100 SeedShop,1700 JojaMart,2300 EastScarp_JessieHouse","Fri":"700 EastScarp_JessieHouse,1100 EastScarp_Village,1300 Beach,1800 Saloon,2400 EastScarp_JessieHouse"},"Josephine":{"Fri":"0 EastScarp_VillageInn,900 Town,1700 EastScarp_VillageInn","Sun":"0 EastScarp_VillageInn,1000 EastScarp_Village,1100 SeedShop,1400 ManorHouse,2100 EastScarp_VillageInn","spring":"0 EastScarp_VillageInn,1000 EastScarp_Village,1100 SeedShop,1500 EastScarp_VillageInn"},"Jessie":{"rain":"630 EastScarp_JessieHouse,1300 EastScarp_Village,1800 EastScarp_JessieHouse","spring":"610 EastScarp_JessieHouse,900 EastScarp_Village,1700 JojaMart,2300 EastScarp_JessieHouse","Mon":"610 EastScarp_JessieHouse,900 EastScarp_Village,1700 JojaMart,2300 EastScarp_JessieHouse","Tue":"610 EastScarp_JessieHouse,1000 SeedShop,1700 JojaMart,2300 EastScarp_JessieHouse","Thu":"610 EastScarp_JessieHouse,900 EastScarp_Village,1700 JojaMart,2300 EastScarp_JessieHouse","Sat":"610 EastScarp_JessieHouse,850 JojaMart,2300 EastScarp_JessieHouse","Sun":"610 EastScarp_JessieHouse,850 JojaMart,1700 Town,2100 EastScarp_JessieHouse","summer":"610 EastScarp_JessieHouse,900 EastScarp_Village,1700 JojaMart,2300 EastScarp_JessieHouse","fall":"610 EastScarp_JessieHouse,900 EastScarp_Village,1700 JojaMart,2300 EastScarp_JessieHouse","winter":"610 EastScarp_JessieHouse,900 EastScarp_Village,1700 JojaMart,2300 EastScarp_JessieHouse","Fri":"610 EastScarp_JessieHouse,900 EastScarp_Village,1700 JojaMart,2300 EastScarp_JessieHouse","summer_Mon":"610 EastScarp_JessieHouse,900 EastScarp_Village,1700 JojaMart,2300 EastScarp_JessieHouse","spring_Tue":"610 EastScarp_JessieHouse,1000 SeedShop,1230 Mountain,1900 EastScarp_JessieHouse","spring_Thu":"610 EastScarp_JessieHouse,1000 SeedShop,1230 Mountain,1900 EastScarp_JessieHouse"},"Rosa":{"spring":"750 EastScarp_VillageInn,1800 EastScarp_Village,2200 EastScarp_VillageInn","Sat":"750 EastScarp_VillageInn,930 EastScarp_Village,1700 EastScarp_VillageInn","Sun":"750 EastScarp_VillageInn,930 EastScarp_Village,1700 EastScarp_VillageInn","summer_Mon":"750 EastScarp_VillageInn,930 EastScarp_Village,1700 EastScarp_VillageInn","summer":"750 EastScarp_VillageInn,1800 EastScarp_Village,2200 EastScarp_VillageInn","fall":"750 EastScarp_VillageInn,1800 EastScarp_Village,2200 EastScarp_VillageInn","winter":"750 EastScarp_VillageInn,1800 EastScarp_Village,2130 EastScarp_VillageInn","rain":"750 EastScarp_VillageInn","winter_Mon":"750 EastScarp_VillageInn","winter_Tue":"750 EastScarp_VillageInn","Thu":"750 EastScarp_VillageInn,930 JojaMart,1530 EastScarp_VillageInn","Fri":"750 EastScarp_VillageInn"},"Edith":{"spring":"630 EastScarp_VillageInn,1900 EastScarp_Village,2030 EastScarp_VillageInn","rain":"630 EastScarp_VillageInn","Tue":"630 EastScarp_VillageInn,1100 SeedShop,1700 Town,1800 EastScarp_VillageInn,1900 EastScarp_Village,2300 EastScarp_VillageInn","Wed":"630 EastScarp_VillageInn,1800 Saloon,2300 EastScarp_VillageInn","Thu":"630 EastScarp_VillageInn,1800 EastScarp_Village,2030 EastScarp_VillageInn","Sat":"630 EastScarp_VillageInn,1800 EastScarp_Village,2030 EastScarp_VillageInn","Sun":"630 EastScarp_VillageInn,1530 Town,1830 EastScarp_Village,2300 EastScarp_VillageInn","summer_Wed":"630 EastScarp_VillageInn,1900 EastScarp_Village,2030 EastScarp_VillageInn"},"Eyvinder":{"spring":"610 EastScarp_EyvinderCave"},"Luma":{"spring":"800 EastScarp_OrchardHouse,1200 EastScarp_Orchard,1950 EastScarp_Orchardhouse"},"Kennedy":{"spring":"610 -,900 EastScarp_TNPCWaitingWarpRoom,1500 EastScarp_KenStellaHouse","Sat":"900 EastScarp_ThriftShop,1800 EastScarp_KenStellaHouse","Sun":"900 EastScarp_ThriftShop,1800 EastScarp_KenStellaHouse"},"Jasper":{"spring":"610 EastScarp_JasperHouse,1100 ArchaeologyHouse,1800 EastScarp_JasperHouse","summer":"610 EastScarp_JasperHouse,1100 EastScarp_Village,1500 EastScarp_JasperHouse","Mon":"610 EastScarp_JasperHouse,900 Town,1100 Forest,1630 ArchaeologyHouse,2030 EastScarp_JasperHouse","Wed":"610 EastScarp_JasperHouse,1000 JojaMart,1600 Town,1830 EastScarp_JasperHouse","Fri":"610 EastScarp_JasperHouse,700 Town,1100 Mountain,1320 AdventureGuild,1830 EastScarp_JasperHouse","Sat":"610 EastScarp_JasperHouse,730 Town,1130 Mountain,1430 Mine,1730 EastScarp_JasperHouse","spring_Thu":"610 EastScarp_JasperHouse,700 Town,1000 Mountain,1630 EastScarp_JasperHouse","rain":"610 EastScarp_JasperHouse,1100 ArchaeologyHouse,1800 EastScarp_JasperHouse","Tue":"610 EastScarp_JasperHouse,1100 EastScarp_Village,1400 EastScarp_JasperHouse","Thu":"610 EastScarp_JasperHouse,700 Hospital,1200 Town,1730 ArchaeologyHouse,1830 EastScarp_JasperHouse","Sun":"610 EastScarp_JasperHouse,1200 ArchaeologyHouse,1800 EastScarp_JasperHouse","winter_Mon":"610 EastScarp_JasperHouse","winter_Wed":"610 EastScarp_JasperHouse,1130 ArchaeologyHouse,1300 JojaMart,1600 Town,1830 EastScarp_JasperHouse","winter_Thu":"610 EastScarp_JasperHouse,930 ArchaeologyHouse,1200 Town,1530 ArchaeologyHouse,1830 EastScarp_JasperHouse"},"Eloise":{"rain":"700 EastScarp_VetHouse,1300 EastScarp_BirdHide,1800 EastScarp_VetHouse","summer_Mon":"700 EastScarp_VetHouse,1100 Beach,1620 EastScarp_Village,1800 EastScarp_VetHouse","Mon":"700 EastScarp_VetHouse,1100 EastScarp_BirdHide,1400 EastScarp_Village,1700 EastScarp_VetHouse","Tue":"610 EastScarp_VetHouse,920 Town,1000 ArchaeologyHouse,1400 Town,1750 AnimalShop","Wed":"610 EastScarp_VetHouse,920 Town,1000 ArchaeologyHouse,1400 Town,1650 EastScarp_Village,1800 EastScarp_VetHouse","Thu":"700 EastScarp_VetHouse,1100 EastScarp_BirdHide,1410 EastScarp_Village,1800 EastScarp_VetHouse","Fri":"610 EastScarp_VetHouse,920 Town,1000 ArchaeologyHouse,1400 Town,1650 EastScarp_Village,1800 EastScarp_VetHouse","Sat":"700 EastScarp_VetHouse,800 Town,1740 EastScarp_VetHouse","summer_Sat":"700 EastScarp_VetHouse,800 Town,1740 EastScarp_VetHouse","winter_Sat":"700 EastScarp_VetHouse,800 Town,1740 EastScarp_VetHouse","fall_Sat":"700 EastScarp_VetHouse,800 Town,1740 EastScarp_VetHouse","Sun":"700 EastScarp_VetHouse,1030 EastScarp_BirdHide,1200 EastScarp_Village,1800 EastScarp_VetHouse","spring":"700 EastScarp_VetHouse,1100 EastScarp_BirdHide,1400 EastScarp_Village,1700 EastScarp_VetHouse"},"Vivienne":{"spring":"700 EastScarp_Village,1800 EastScarp_VetHouse","Sat":"700 EastScarp_Village,1800 EastScarp_VetHouse","Sun":"700 EastScarp_Village,1800 EastScarp_VetHouse","rain":"610 EastScarp_VetHouse,1400 Saloon,2200 EastScarp_VetHouse"}};
+/* Where each schedule place appears on the maps: [map, building name] or [map, "spot", spot name]. Anything not listed is shown as "away from the maps". */
+const LOC={SeedShop:["town","Pierre's General Store"],Sunroom:["town","Pierre's General Store"],Saloon:["town","Stardrop Saloon"],HarveyRoom:["town","Harvey's Clinic"],Hospital:["town","Harvey's Clinic"],JoshHouse:["town","1 River Road"],SamHouse:["town","1 Willow Lane"],HaleyHouse:["town","2 Willow Lane"],Trailer:["town","The Trailer"],ManorHouse:["town","Mayor's Manor"],ArchaeologyHouse:["town","Museum & Library"],Library:["town","Museum & Library"],Blacksmith:["town","Blacksmith"],Sewer:["town","The Sewers"],
+ Town:["town","spot","Town Square"],JojaMart:["town","spot","JojaMart"],CommunityCenter:["town","spot","Community Center"],
+ ScienceHouse:["sve","Carpenter's Shop"],SebastianRoom:["sve","Carpenter's Shop"],AnimalShop:["sve","Marnie's Ranch"],ElliottHouse:["sve","Elliott's Cabin"],LeahHouse:["sve","Leah's Cottage"],WizardHouse:["sve","Wizard's Tower"],FishShop:["sve","Willy's Fish Shop"],Tent:["sve","Linus' Tent"],AdventureGuild:["sve","Adventurer's Guild"],Mine:["sve","The Mines"],
+ Mountain:["sve","spot","The Mountain"],Forest:["sve","spot","Cindersap Forest"],Beach:["sve","spot","The Beach"],BusStop:["sve","spot","Bus Stop"],
+ EastScarp_Village:["es","spot","Village Green"],EastScarp_VillageInn:["es","Village Inn"],EastScarp_InnBath:["es","Village Inn"],EastScarp_AideenHouse:["es","Aideen's House"],EastScarp_VetHouse:["es","Vet House"],EastScarp_JessieHouse:["es","Jessie's House"],EastScarp_JasperHouse:["es","Jasper's House"],EastScarp_DaleHouse:["es","Dale's House"],EastScarp_Lighthouse:["es","Lighthouse"],EastScarp_LanternRoom:["es","Lighthouse"],EastScarp_SeaCave:["es","Sea Cave"],EastScarp_NTHouse:["es","spot","Empty Cottage"],EastScarp_ToriSlimeBasement:["es","Tori's Slime Basement"],EastScarp_FairyPool:["es","spot","Fairy Pool"],
+ EastScarp_KenStellaHouse:["es","Zuzu Suburb"],EastScarp_KatarynaHouse:["es","Zuzu Suburb"],EastScarp_ThriftShop:["es","Zuzu Suburb"],EastScarp_KeanuHouse:["es","Lores Cove"],EastScarp_LoresCove:["es","Lores Cove"],EastScarp_EyvinderCave:["es","Deep Mountains"],EastScarp_DeepMountains:["es","Deep Mountains"],EastScarp_Orchard:["es","Orchard House"],EastScarp_OrchardHouse:["es","Orchard House"],EastScarp_Orchardhouse:["es","Orchard House"]};
 /* Coordinates are canvas pixels in each map's own size. x,y = doorstep (bottom center) of a building.
    tg:[dx,dy] nudges the name tag; ta:"l"|"r" anchors the tag to the left/right of the point. */
 const DATA={
@@ -324,6 +365,7 @@ const DATA={
   }
  },
  town:{
+  spots:[{"n": "Town Square", "x": 190, "y": 158, "t": "spot", "w": "The plaza in the middle of Pelican Town", "p": []}, {"n": "JojaMart", "x": 318, "y": 96, "t": "spot", "w": "East side of town", "p": []}, {"n": "Community Center", "x": 150, "y": 96, "t": "spot", "w": "North side of town", "p": []}],
   name:"Pelican Town",size:[400,310],sz:1,
   foot:"Pelican Town from the base game, plus Expanded's Jenkins house and Morris Property. Everyone who lives outside town (Robin's family, Linus, Marnie's family, Leah, the Wizard, Willy, Elliott and more) is on the Valley map; the signs at the town exits jump there. Kent moves back to 1 Willow Lane in Year 2. Krobus lives in the Sewers.",
   river:y=>348+3*Math.sin(y/20),
@@ -365,6 +407,7 @@ const DATA={
   }
  },
   es:{
+  spots:[{"n": "Village Green", "x": 118, "y": 252, "t": "spot", "w": "The open ground in the middle of East Scarp village", "p": []}, {"n": "Fairy Pool", "x": 372, "y": 94, "t": "spot", "w": "Northeast, beside the Orchard", "p": []}, {"n": "Empty Cottage", "x": 16, "y": 252, "t": "spot", "w": "The small cottage on the west edge (home of the NT House)", "p": [], "tg": [0, 22]}],
    name:"East Scarp",size:[400,600],sz:.95,minw:400,maxw:620,
    foot:"Traced from the East Scarp village map in the mod's files, 4 pixels to a game tile, so door positions are close but not exact. Homes outside the village (the Orchard, Deep Mountains, Zuzu Suburb and Lores Cove) are shown as signs on the edge they lead from. Oliver, Vivienne and Corwin move into their homes after story events. Cameron lives behind Kataryna's house.",
    labels:[["East Scarp Beach",338,420],["Fairy Pool",372,64]],
@@ -411,6 +454,7 @@ const DATA={
    }
   },
  sve:{
+  spots:[{"n": "The Mountain", "x": 420, "y": 100, "t": "spot", "w": "Up the path from town, around the lake", "p": []}, {"n": "Cindersap Forest", "x": 170, "y": 232, "t": "spot", "w": "South of the farm", "p": []}, {"n": "The Beach", "x": 436, "y": 232, "t": "spot", "w": "South of town", "p": []}, {"n": "Bus Stop", "x": 288, "y": 112, "t": "spot", "w": "West of town", "p": []}],
   name:"The Valley",size:[600,300],sz:0.62,small:1,
   foot:"Traced from the Stardew Valley Expanded world map, with buildings identified against the vanilla map. Pelican Town's own residents are on the Pelican Town map. Lance's home, the First Slash Guild Hall, is on Fable Reef and reached by a hidden warp rune. Claire and Martin live in the countryside and come in by bus. Morris only lives here on the Joja route. Camilla, Isaac, Alesia, Bear and Gil can't be gifted.",
   labels:[["Calico Desert",60,10],["Forest West",58,160],["Secret Woods",120,118],["Cindersap Forest",172,226],["Your Farm",212,152],["Bus Stop",268,92],["Railroad",300,4],["Mountain Lake",430,54],["Quarry",517,58],["The Beach",412,262],["Shearwater Bridge",548,158],["Grampleton",566,140],["Ginger Island",564,296],["Fable Reef",318,292]],
@@ -432,7 +476,7 @@ const DATA={
    {n:"Blue Moon Vineyard",w:"Between the Beach and Cindersap Forest",p:["Sophia"],x:304,y:232,t:"cottage",c:2,tg:[-8,0],ta:"r"},
    {n:"Elliott's Cabin",w:"West end of the Beach",p:["Elliott"],x:370,y:256,t:"cottage",c:4,old:1,tg:[-8,-4],ta:"r"},
    {n:"Willy's Fish Shop",w:"The Beach, by the pier",p:["Willy"],x:420,y:270,t:"shop",c:1,tg:[10,-4],ta:"l"},
-   {n:"Morris Property",w:"Path east of JojaMart; Joja route only",p:["Morris"],x:470,y:150,t:"cottage",c:1,tg:[8,-4],ta:"l"},
+   {n:"Morris Property",w:"Path east of JojaMart; Joja route only (his home is on the Pelican Town map)",p:[],x:470,y:150,t:"cottage",c:1,tg:[8,-4],ta:"l"},
    {n:"Grampleton Suburbs",w:"106 Pondwood Road, east past Shearwater Bridge (not visitable)",p:["Scarlett"],x:582,y:170,t:"cottage",c:0,tg:[-6,0],ta:"r"},
    {n:"First Slash Guild Hall",w:"Fable Reef, reached by a hidden warp rune",p:["Lance"],x:318,y:284,t:"guild",tg:[14,-12],ta:"l"},
    {n:"Ginger Island",w:"Island resort; take Willy's boat",p:["Leo"],x:564,y:282,t:"hut",tg:[-12,-8],ta:"r"},
@@ -654,6 +698,51 @@ let favs=new Set();try{favs=new Set(JSON.parse(store.get("vra-fav")||"[]"))}catc
 const visible=n=>mods.sve||!SVEONLY.has(base(n));
 const mapOn=mk=>mk==="rsv"?mods.rsv:mk==="es"?mods.es:true;
 const peopleOf=h=>h.p.filter(visible);
+Object.entries(DATA).forEach(([mk,d])=>{d.all=[...d.houses,...(d.spots||[])];d.all.forEach((h,i)=>h.k=mk+":"+i)});
+
+/* ---------- where is everyone: usual schedules ---------- */
+const TIMES=[900,1400,1900,2300],TNAMES=["morning","afternoon","evening","night"];
+const DOWN=["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"],DOWK=["Mon","Tue","Wed","Thu","Fri","Sat","Sun"],SEASK=["spring","summer","fall","winter"];
+const when={mode:"home",season:0,dow:0,rain:false};
+let placed={},placeOf={},awayList=[];
+const friendly=id=>/WarpRoom|Waiting/.test(id)?"away from the village":id.replace(/^EastScarp_/,"").replace(/_/g," ").replace(/([a-z])([A-Z])/g,"$1 $2");
+function stopsFor(n){
+  const S=SCHED[base(n)];if(!S)return null;
+  const s=SEASK[when.season],d=DOWK[when.dow];
+  const keys=(when.rain?["rain"]:[]).concat([s+"_"+d,d,s,"spring","default"]);
+  for(const k of keys)if(S[k])return S[k];
+  return null;
+}
+function locAt(n,t){
+  const raw=stopsFor(n);if(!raw)return undefined;
+  let cur=null;
+  for(const part of raw.split(",")){const i=part.indexOf(" "),tm=+part.slice(0,i),loc=part.slice(i+1);if(tm<=t)cur=loc==="-"?null:loc;else break}
+  return cur;
+}
+function buildPlacement(){
+  placed={};placeOf={};awayList=[];
+  const seen=new Set();
+  PEOPLE.filter(inScope).forEach(p=>{
+    const k=base(p.n);if(seen.has(k))return;seen.add(k);
+    const home={mk:p.mk,i:p.i,label:p.h.n,home:true};
+    if(when.mode==="home"){placeOf[k]=home;return}
+    const loc=locAt(p.n,TIMES[when.mode]);
+    let r=home;
+    if(loc===undefined)r={...home,nodata:true};
+    else if(loc){
+      const L=LOC[loc];let idx=-1,mk=L&&L[0];
+      if(L&&mapOn(mk)){const name=L[1]==="spot"?L[2]:L[1];idx=DATA[mk].all.findIndex(h=>h.n===name);r={mk,i:idx,label:name}}
+      if(!L||idx<0||!mapOn(mk))r={away:true,label:friendly(loc)};
+    }
+    placeOf[k]=r;
+    if(r.away)awayList.push([p.n,r.label]);
+    else(placed[r.mk+":"+r.i]=placed[r.mk+":"+r.i]||[]).push(p.n);
+  });
+}
+const place=p=>placeOf[base(p.n)]||{mk:p.mk,i:p.i,label:p.h.n,home:true};
+const occ=h=>when.mode==="home"?peopleOf(h):(placed[h.k]||[]).filter(visible);
+const homeOf=n=>{const p=PEOPLE.find(x=>base(x.n)===base(n));return p?p.h.n:""};
+const whenText=()=>`a usual ${["Spring","Summer","Fall","Winter"][when.season]} ${DOWN[when.dow]}${when.rain?" (rainy)":""}`;
 const inScope=p=>visible(p.n)&&mapOn(p.mk);
 const bdText=n=>{const b=BDAY[base(n)];return b?SEASONS[b[0]]+" "+b[1]:""};
 
@@ -675,7 +764,7 @@ function compose(){
 const pct=(x,y)=>({left:(x/W*100)+"%",top:(y/H*100)+"%"});
 const EDGEI={n:"▲",s:"▼",w:"◀",e:"▶"};
 function render(){
-  const d=DATA[cur];MAP=d;[W,H]=d.size;sel=-1;water=[];windows=[];foamLine=[];fallPts=[];
+  const d=DATA[cur];MAP=d;[W,H]=d.size;sel=-1;water=[];windows=[];foamLine=[];fallPts=[];buildPlacement();
   cv.width=W;cv.height=H;baseCv.width=W;baseCv.height=H;stage.style.aspectRatio=W+"/"+H;
   stage.style.minWidth=(d.minw||900)+"px";stage.style.maxWidth=d.maxw?d.maxw+"px":"100%";stage.style.marginInline=d.maxw?"auto":"0";
   const E=painter({rsv:1,town:3,sve:2,es:4}[cur],d);
@@ -689,12 +778,12 @@ function render(){
   stage.querySelectorAll(".tag,.ntag,.pop,.sign").forEach(e=>e.remove());
   const pop=document.createElement("div");pop.className="pop";pop.id="pop";pop.hidden=true;stage.appendChild(pop);
   d.labels.forEach(([t,x,y])=>{const e=document.createElement("span");e.className="tag";e.textContent=t;Object.assign(e.style,pct(x,y));stage.appendChild(e)});
-  d.houses.forEach((h,i)=>{
+  d.all.forEach((h,i)=>{
     const el=document.createElement("button");el.dataset.i=i;
     if(h.t==="townlink"){el.className="sign big";el.innerHTML=`<b>Pelican Town</b><small>${PEOPLE.filter(p=>p.mk==="town"&&visible(p.n)).length} residents · open map ›</small>`;Object.assign(el.style,pct(h.x,h.y));el.addEventListener("click",()=>switchTo("town"));stage.appendChild(el);return}
-    const ppl=peopleOf(h);if(!ppl.length)return;
-    el.className="ntag"+(h.t==="edge"?" edge "+h.dir:"");
-    el.innerHTML=(h.t==="edge"?`<i>${EDGEI[h.dir]} ${esc(h.n)}</i>`:"")+ppl.map(n=>`<span class="${isRom(n)?"r":""}">${esc(n)}</span>`).join("");
+    const ppl=occ(h);if(!ppl.length)return;
+    el.className="ntag"+(h.t==="edge"?" edge "+h.dir:"")+(h.t==="spot"?" spot":"");
+    el.innerHTML=(h.t==="edge"?`<i>${EDGEI[h.dir]} ${esc(h.n)}</i>`:h.t==="spot"?`<i>${esc(h.n)}</i>`:"")+ppl.map(n=>`<span class="${isRom(n)?"r":""}">${esc(n)}</span>`).join("");
     el.setAttribute("aria-label",h.n+": "+ppl.join(", "));
     const tg=h.tg||[0,0];let ax=h.x+tg[0],ay=(h.t==="edge"?h.y:h.y+2)+tg[1];
     Object.assign(el.style,pct(ax,ay));
@@ -708,6 +797,7 @@ function render(){
   document.querySelectorAll("[data-map]").forEach(bn=>bn.setAttribute("aria-selected",bn.dataset.map===cur));
   swipe.hidden=swipeDone||mapbox.scrollWidth<=mapbox.clientWidth+2;
   filter();
+  if(typeof renderWhen==="function")renderWhen();
 }
 function switchTo(mk){if(mk===cur)return;cur=mk;store.set("vra-tab2",cur);render()}
 function reveal(how){
@@ -723,17 +813,20 @@ function reveal(how){
 function showOn(mk,i){
   switchTo(mk);if(sel!==i)select(i);reveal("center");
 }
+const goBtn=pl=>pl.away?`<button class="go" type="button" disabled>Not on the maps</button>`:`<button class="go" data-mk="${pl.mk}" data-i="${pl.i}">Show on map</button>`;
+const nowLine=pl=>when.mode==="home"?"":`<div class="nowline">${cap(TNAMES[when.mode])}: ${pl.away?"away from the maps ("+esc(pl.label)+")":esc(pl.label)}${pl.nodata?" <i>(no schedule data, shown at home)</i>":""}</div>`;
+const cap=t=>t[0].toUpperCase()+t.slice(1);
 const star=n=>`<button class="fav" type="button" data-n="${esc(base(n))}" aria-pressed="${favs.has(base(n))}" aria-label="Favorite ${esc(base(n))}">${favs.has(base(n))?"★":"☆"}</button>`;
 function select(i){
   sel=(sel===i)?-1:i;
   stage.querySelectorAll(".ntag").forEach(t=>t.classList.toggle("on",+t.dataset.i===sel));
   const pop=document.getElementById("pop");
   if(sel<0){pop.hidden=true;return}
-  const h=DATA[cur].houses[sel];
-  const rows=peopleOf(h).map(n=>{const g=giftList(n);const nt=GNOTE[base(n)];const bd=bdText(n);
+  const h=DATA[cur].all[sel];
+  const rows=occ(h).map(n=>{const g=giftList(n);const nt=GNOTE[base(n)];const bd=bdText(n);const lives=when.mode!=="home"?`<div class="where">Lives at ${esc(homeOf(n))}</div>`:"";
     const txt=g.length?`<span class="lv">Loves:</span> ${esc(g.join(", "))}`:(nt?`<i>${esc(nt)}</i>`:"");
-    return `<div class="res"><div class="rl"><b class="${isRom(n)?"r":""}">${esc(n)}</b>${bd?`<span class="bd">Birthday ${esc(bd)}</span>`:""}${star(n)}</div>${txt?`<div class="gl">${txt}</div>`:""}</div>`}).join("");
-  pop.innerHTML=`<button class="x" aria-label="Close">&times;</button><h3>${esc(h.n)}</h3><div class="where">${esc(h.w)}</div>${rows}`;
+    return `<div class="res"><div class="rl"><b class="${isRom(n)?"r":""}">${esc(n)}</b>${bd?`<span class="bd">Birthday ${esc(bd)}</span>`:""}${star(n)}</div>${lives}${txt?`<div class="gl">${txt}</div>`:""}</div>`}).join("");
+  pop.innerHTML=`<button class="x" aria-label="Close">&times;</button><h3>${esc(h.n)}</h3><div class="where">${esc(h.w)}</div>${when.mode!=="home"?`<div class="where"><i>Who is here in the ${TNAMES[when.mode]} on ${whenText()}</i></div>`:""}${rows}`;
   pop.querySelector(".x").addEventListener("click",()=>select(sel));
   const ax=h.x+(h.tg?h.tg[0]:0);
   const tx=ax<W*.22?"0%":ax>W*.78?"-100%":"-50%";const below=h.y<H*.45;
@@ -744,16 +837,16 @@ function select(i){
 function matches(p,v){if(romOn&&!isRom(p.n))return false;if(favOn&&!favs.has(base(p.n)))return false;if(!v)return true;return p.n.toLowerCase().includes(v)||p.h.n.toLowerCase().includes(v)||giftList(p.n).join(", ").toLowerCase().includes(v)}
 function filter(){
   const v=q.value.trim().toLowerCase();const act=!!v||romOn||favOn;
-  stage.querySelectorAll(".ntag").forEach(t=>{const h=DATA[cur].houses[+t.dataset.i];const ppl=peopleOf(h);let any=false;
+  stage.querySelectorAll(".ntag").forEach(t=>{const h=DATA[cur].all[+t.dataset.i];const ppl=occ(h);let any=false;
     t.querySelectorAll("span").forEach((sp,k)=>{const m=act&&matches({n:ppl[k],h},v);sp.classList.toggle("hit",m);if(m)any=true});
     t.classList.toggle("dim",act&&!any)});
   const scope=PEOPLE.filter(inScope);
   const list=scope.filter(p=>(mapFilter==="all"||p.mk===mapFilter)&&matches(p,v));
   const uniq=new Set(scope.map(p=>base(p.n))).size,nmaps=Object.keys(DATA).filter(mapOn).length;
   count.textContent=act?`${list.length} villager${list.length===1?"":"s"} match`:`${uniq} villagers on ${nmaps} maps`;
-  dir.innerHTML=list.map(p=>{const g=giftList(p.n),nt=GNOTE[base(p.n)],bd=bdText(p.n);
-    return `<article class="card"><header><b class="${isRom(p.n)?"r":""}">${esc(p.n)}</b><span class="acts">${star(p.n)}<button class="go" data-mk="${p.mk}" data-i="${p.i}">Show on map</button></span></header>
-    <div class="home">${esc(p.h.n)} · <span>${esc(DATA[p.mk].name)}</span>${bd?` · Birthday ${esc(bd)}`:""}</div>
+  dir.innerHTML=list.map(p=>{const g=giftList(p.n),nt=GNOTE[base(p.n)],bd=bdText(p.n),pl=place(p);
+    return `<article class="card"><header><b class="${isRom(p.n)?"r":""}">${esc(p.n)}</b><span class="acts">${star(p.n)}${goBtn(pl)}</span></header>
+    <div class="home">${esc(p.h.n)} · <span>${esc(DATA[p.mk].name)}</span>${bd?` · Birthday ${esc(bd)}`:""}</div>${nowLine(pl)}
     <div class="gifts">${g.length?`<span class="lv">Loves:</span> ${esc(g.join(", "))}`:`<i>${esc(nt||"No loved gifts listed")}</i>`}</div></article>`}).join("")||`<p class="empty">${favOn&&!favs.size?"No favorites yet. Tap the star on any villager to pin them here.":"No villagers match. Try another name or gift, or turn off a filter."}</p>`;
   clr.hidden=!q.value;
   renderResults(v,scope.filter(p=>matches(p,v)));
@@ -769,16 +862,17 @@ function renderResults(v,list){
     results.innerHTML=`<div class="rhead">Search by villager, home or loved gift</div><div class="sugg">${["Abigail","Robin","Pierre's","Spaghetti","Pizza","Diamond"].map(t=>`<button class="btn" type="button" data-s="${esc(t)}">${esc(t)}</button>`).join("")}</div>`;
     results.hidden=false;return}
   list=list||PEOPLE.filter(p=>inScope(p)&&matches(p,v));
-  const rows=list.map(p=>{const g=giftList(p.n),bd=bdText(p.n);
+  const rows=list.map(p=>{const g=giftList(p.n),bd=bdText(p.n),pl=place(p);
     const gifts=g.length?`<span class="rg"><b>Loves:</b> ${g.map(x=>v&&x.toLowerCase().includes(v)?hl(x,v):esc(x)).join(", ")}</span>`:"";
-    return `<button class="row" type="button" data-mk="${p.mk}" data-i="${p.i}"><span class="rn ${isRom(p.n)?"r":""}">${hl(p.n,v)}</span><span class="rm">${hl(p.h.n,v)} · ${esc(DATA[p.mk].name)}${bd?` · Birthday ${esc(bd)}`:""}</span>${gifts}</button>`}).join("");
+    const now=when.mode==="home"?"":`<span class="rm"><b>${cap(TNAMES[when.mode])}:</b> ${pl.away?"away from the maps ("+esc(pl.label)+")":esc(pl.label)}</span>`;
+    return `<button class="row" type="button" ${pl.away?"data-away=1":`data-mk="${pl.mk}" data-i="${pl.i}"`}><span class="rn ${isRom(p.n)?"r":""}">${hl(p.n,v)}</span><span class="rm">${hl(p.h.n,v)} · ${esc(DATA[p.mk].name)}${bd?` · Birthday ${esc(bd)}`:""}</span>${now}${gifts}</button>`}).join("");
   results.innerHTML=`<div class="rhead">${list.length?`${list.length} match${list.length===1?"":"es"}. Tap one to find it on the map.`:"No villagers match. Try another name or gift."}</div>${rows}`;
   results.hidden=false;
 }
 results.addEventListener("click",e=>{
   const sg=e.target.closest("[data-s]");if(sg){q.value=sg.dataset.s;filter();q.focus();return}
   const r=e.target.closest(".row");if(!r)return;
-  panelOpen=false;results.hidden=true;q.blur();showOn(r.dataset.mk,+r.dataset.i);
+  panelOpen=false;results.hidden=true;q.blur();if(r.dataset.mk)showOn(r.dataset.mk,+r.dataset.i);
 });
 q.addEventListener("focus",()=>setPanel(true));
 q.addEventListener("keydown",e=>{
@@ -822,12 +916,28 @@ function renderBdays(){
   bdlist.innerHTML=keys.length?keys.map(d=>{
     const isNow=today&&today[0]===bdSeason&&today[1]===d;
     return `<div class="bdday${isNow?" now":""}"><div class="bdn">${d}<small>${["Spr","Sum","Fall","Win"][bdSeason]}${isNow?" · today":""}</small></div><div class="bdp">${days[d].map(p=>{const g=giftList(p.n);
-      return `<div><div class="who"><b class="${isRom(p.n)?"r":""}">${esc(p.n)}</b>${star(p.n)}<button class="go" data-mk="${p.mk}" data-i="${p.i}">Show on map</button></div><div class="gl">${g.length?`<span class="lv">Loves:</span> ${esc(g.slice(0,4).join(", "))}${g.length>4?" …":""}`:""}</div></div>`}).join("")}</div></div>`}).join(""):`<p class="empty">No birthdays this season for the mods you have on.</p>`;
+      return `<div><div class="who"><b class="${isRom(p.n)?"r":""}">${esc(p.n)}</b>${star(p.n)}${goBtn(place(p))}</div><div class="gl">${g.length?`<span class="lv">Loves:</span> ${esc(g.slice(0,4).join(", "))}${g.length>4?" …":""}`:""}</div></div>`}).join("")}</div></div>`}).join(""):`<p class="empty">No birthdays this season for the mods you have on.</p>`;
   bdlist.querySelectorAll(".go").forEach(bn=>bn.addEventListener("click",()=>showOn(bn.dataset.mk,+bn.dataset.i)));
 }
 document.querySelectorAll("[data-season]").forEach(b=>b.addEventListener("click",()=>{bdSeason=+b.dataset.season;renderBdays()}));
-function saveToday(){const s=tseason.value;if(s===""){today=null;store.set("vra-today","null")}else{today=[+s,+tday.value||1];bdSeason=today[0];store.set("vra-today",JSON.stringify(today))}renderBdays()}
+function syncWhen(){if(today){when.season=today[0];when.dow=(today[1]-1)%7}}
+function saveToday(){const s=tseason.value;if(s===""){today=null;store.set("vra-today","null")}else{today=[+s,+tday.value||1];bdSeason=today[0];store.set("vra-today",JSON.stringify(today));syncWhen();if(when.mode!=="home")render()}renderBdays();renderWhen()}
 tseason.addEventListener("change",saveToday);tday.addEventListener("change",saveToday);
+
+/* ---------- where is everyone panel ---------- */
+const seg=document.getElementById("seg"),wseason=document.getElementById("wseason"),wdow=document.getElementById("wdow"),wrain=document.getElementById("wrain"),whenopts=document.getElementById("whenopts"),whenline=document.getElementById("whenline"),whenaway=document.getElementById("whenaway");
+function renderWhen(){
+  seg.querySelectorAll("[data-t]").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.t===String(when.mode))));
+  wseason.value=when.season;wdow.value=when.dow;wrain.value=when.rain?"1":"0";
+  whenline.textContent=when.mode==="home"?"Showing where everyone lives. Pick a time to see where they usually are.":`Showing where people usually are in the ${TNAMES[when.mode]} on ${whenText()}. Festivals, events and friendship hearts can change this.`;
+  const aw=awayList.filter(([n])=>visible(n));
+  whenaway.hidden=when.mode==="home"||!aw.length;
+  const g={};aw.forEach(([n,l])=>(g[l]=g[l]||[]).push(n));
+  whenaway.textContent=aw.length?"Not on these maps: "+Object.entries(g).map(([l,ns])=>`${ns.join(", ")} (${l})`).join("; "):"";
+}
+seg.addEventListener("click",e=>{const b=e.target.closest("[data-t]");if(!b)return;when.mode=b.dataset.t==="home"?"home":+b.dataset.t;render();renderWhen()});
+document.getElementById("whenopt").addEventListener("click",e=>{const o=whenopts.hidden;whenopts.hidden=!o;e.currentTarget.setAttribute("aria-expanded",String(o));e.currentTarget.textContent=o?"Hide":"Change day"});
+[wseason,wdow,wrain].forEach(el=>el.addEventListener("change",()=>{when.season=+wseason.value;when.dow=+wdow.value;when.rain=wrain.value==="1";if(when.mode!=="home")render();renderWhen()}));
 
 /* ---------- mods ---------- */
 const moddlg=document.getElementById("moddlg"),modsum=document.getElementById("modsum");
@@ -861,7 +971,7 @@ q.addEventListener("input",()=>{if(!panelOpen)panelOpen=true;filter()});
 document.getElementById("rom").addEventListener("click",e=>{romOn=!romOn;e.currentTarget.setAttribute("aria-pressed",romOn);filter()});
 document.getElementById("tolist").addEventListener("click",()=>document.getElementById("bdbox").scrollIntoView({behavior:reduce?"auto":"smooth",block:"start"}));
 mapbox.addEventListener("scroll",()=>{swipeDone=true;swipe.hidden=true},{once:true,passive:true});
-modCounts();applyMods();
+syncWhen();modCounts();applyMods();
 if(!savedMods){document.querySelectorAll("[data-mod]").forEach(c=>c.checked=true);moddlg.showModal()}
 if(!reduce)setInterval(()=>{tick++;compose()},450);
 if("serviceWorker" in navigator&&location.protocol.startsWith("http"))navigator.serviceWorker.register("sw.js").catch(()=>{});
