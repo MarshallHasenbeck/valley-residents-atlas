@@ -37,7 +37,8 @@ h2{font-family:var(--display);font-weight:700;font-size:1.3rem;margin:0;color:va
 .btn[aria-selected="true"],.btn[aria-pressed="true"]{background:var(--gold);color:var(--gold-ink);box-shadow:inset 0 -4px 0 #d8a91e,3px 3px 0 var(--wood-lo)}
 .btn:active{transform:translate(2px,2px);box-shadow:1px 1px 0 var(--wood-lo)}
 #rom[aria-pressed="true"]{background:var(--pin);color:#fff;box-shadow:inset 0 -4px 0 #8e2620,3px 3px 0 var(--wood-lo)}
-.tabs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.tabs{display:grid;grid-template-columns:repeat(var(--n,3),minmax(0,1fr));gap:10px}
+.tabs .mo{display:none}
 .tabs .btn{width:100%;padding:9px 6px;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .swipe{display:none;margin:-6px 0 0;color:#fff3c4;font-size:13px;text-align:center}
 @media (max-width:720px){
@@ -48,8 +49,11 @@ h2{font-family:var(--display);font-weight:700;font-size:1.3rem;margin:0;color:va
   .lede{display:none}
   .searchbar{padding:6px;gap:6px;top:0}
   .heart .opt,.tabs .opt{display:none}
-  .tabs{position:fixed;left:0;right:0;bottom:0;z-index:40;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;padding:8px 8px calc(8px + env(safe-area-inset-bottom));background:var(--wood-lo);border-top:4px solid var(--wood);box-shadow:0 -4px 0 rgba(0,0,0,.25)}
-  .tabs .btn{font-size:13px;padding:0 2px;min-height:46px}
+  .tabs .btn[data-map="rsv"] .mo{display:none}
+  .tabs{position:fixed;left:0;right:0;bottom:0;z-index:40;grid-template-columns:repeat(calc(var(--n,3) + 1),minmax(0,1fr));gap:5px;padding:8px 8px calc(8px + env(safe-area-inset-bottom));background:var(--wood-lo);border-top:4px solid var(--wood);box-shadow:0 -4px 0 rgba(0,0,0,.25)}
+  .tabs .btn{font-size:12.5px;padding:0 2px;min-height:46px}
+  .tabs .mo{display:none}
+  .modline{margin-top:4px;font-size:13px}
   .tabs .btn.only-m{display:block}
   .swipe{display:block}
   .swipe.gone{display:none}
@@ -88,6 +92,36 @@ mark{background:var(--gold);color:var(--gold-ink);border-radius:2px;padding:0 2p
 .sugg .btn{font-size:14px;padding:8px 12px;min-height:40px}
 button:focus-visible,#q:focus-visible{outline:3px solid var(--gold);outline-offset:3px}
 .tabs .only-m{display:none}
+.modline{display:flex;gap:8px;align-items:center;justify-content:space-between;margin-top:8px;font-size:14px;color:var(--ink-soft)}
+.modline #modsum{font-weight:700;color:var(--ink);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.modline .btn{flex:none}
+.btn.small{font-size:13px;padding:5px 10px;min-height:36px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.bd{font-size:12.5px;color:var(--ink-soft);font-weight:700;white-space:nowrap}
+.rl{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.fav{background:none;border:0;color:var(--wood-hi);font:700 24px/1 var(--body);cursor:pointer;min-width:44px;min-height:44px;margin:-10px -8px -10px auto;padding:0 8px;display:inline-flex;align-items:center;justify-content:center}
+.fav[aria-pressed="true"]{color:#e0a000}
+.card header{align-items:flex-start}
+.card header .acts{display:flex;align-items:center;gap:4px}
+.today{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:10px 0;font-size:14px}
+.today select{font:inherit;font-size:16px;min-height:40px;padding:0 8px;border:3px solid var(--wood);background:var(--paper);color:var(--ink);border-radius:3px}
+.bdday{display:grid;grid-template-columns:54px 1fr;gap:10px;align-items:start;padding:8px 0;border-top:2px dashed var(--paper2)}
+.bdday.now{background:#fff3c4;border-radius:4px;padding-inline:6px}
+.bdn{font:700 20px var(--display);color:var(--leaf);text-align:center}
+.bdn small{display:block;font:700 11px var(--body);color:var(--ink-soft)}
+.bdp{display:grid;gap:6px}
+.bdp .who{display:flex;flex-wrap:wrap;gap:6px 10px;align-items:baseline}
+.bdp b{font:700 16px var(--display)}
+.bdp .gl{font-size:13.5px}
+dialog#moddlg{border:6px solid var(--wood);background:var(--paper);color:var(--ink);border-radius:4px;box-shadow:inset 0 0 0 3px var(--paper2),8px 10px 0 rgba(0,0,0,.4);padding:16px;max-width:min(440px,calc(100vw - 24px));width:100%}
+dialog#moddlg::backdrop{background:rgba(10,20,28,.7)}
+dialog#moddlg h2{margin-bottom:6px}
+dialog#moddlg p{margin:0 0 10px;font-size:14.5px}
+.modrow{display:flex;align-items:center;gap:12px;padding:10px;margin-top:8px;background:#fbeccb;border:3px solid var(--paper2);border-radius:4px;cursor:pointer;min-height:56px}
+.modrow input{width:24px;height:24px;accent-color:var(--leaf);flex:none}
+.modrow small{display:block;color:var(--ink-soft);font-size:13px}
+#moddone{margin-top:14px;width:100%;min-height:48px}
+
 #mapbox,.ntag{scroll-margin-top:90px}
 .count{color:var(--ink);font-weight:700}
 .mapframe{padding:6px;overflow-x:auto}
@@ -142,7 +176,8 @@ i{color:var(--ink-soft)}
 <div class="wrap">
   <header class="box head">
     <h1>Valley Residents Atlas</h1>
-    <p class="lede">Every villager in Pelican Town, the Expanded valley and Ridgeside Village, shown where they live. Search a name, home or loved gift, then tap a name on the map for details.</p>
+    <p class="lede">Every villager in Pelican Town, the Expanded valley, Ridgeside Village and East Scarp, shown where they live. Search a name, home or loved gift, then tap a name on the map for details.</p>
+    <div class="modline"><span id="modsum"></span><button class="btn small" id="modbtn" type="button">Change mods</button></div>
   </header>
 
   <div class="searchbar" id="searchbar">
@@ -155,29 +190,54 @@ i{color:var(--ink-soft)}
     <div class="results" id="results" role="region" aria-label="Search results" hidden></div>
   </div>
 
-  <nav class="tabs" role="tablist" aria-label="Choose a map">
+  <nav class="tabs" id="tabs" role="tablist" aria-label="Choose a map">
     <button class="btn" role="tab" aria-selected="false" data-map="town"><span class="opt">Pelican </span>Town</button>
-    <button class="btn" role="tab" aria-selected="false" data-map="sve">The Valley<span class="opt"> (Expanded)</span></button>
-    <button class="btn" role="tab" aria-selected="false" data-map="rsv">Ridgeside<span class="opt"> Village</span></button>
-    <button class="btn only-m" type="button" id="tolist">Villagers</button>
+    <button class="btn" role="tab" aria-selected="false" data-map="sve"><span class="opt">The </span>Valley<span class="opt"> (Expanded)</span></button>
+    <button class="btn" role="tab" aria-selected="false" data-map="rsv">Ridge<span class="opt">side Village</span></button>
+    <button class="btn" role="tab" aria-selected="false" data-map="es"><span class="opt">East </span>Scarp</button>
+    <button class="btn only-m" type="button" id="tolist">Lists</button>
   </nav>
   <p class="swipe" id="swipe">Swipe the map sideways to see all of it.</p>
 
   <div class="box mapframe" id="mapbox"><div class="stage" id="stage"><canvas id="cv" aria-label="Map of villager homes"></canvas></div></div>
+
+  <section class="box" id="bdbox">
+    <div class="dirhead"><h2>Birthdays</h2><span class="count" id="bdnext"></span></div>
+    <div class="chips" id="bdseasons" role="tablist" aria-label="Season">
+      <button class="btn" role="tab" data-season="0" aria-selected="false">Spring</button>
+      <button class="btn" role="tab" data-season="1" aria-selected="false">Summer</button>
+      <button class="btn" role="tab" data-season="2" aria-selected="false">Fall</button>
+      <button class="btn" role="tab" data-season="3" aria-selected="false">Winter</button>
+    </div>
+    <div class="today"><label>Today in my game: <select id="tseason" aria-label="Season today"><option value="">Not set</option><option value="0">Spring</option><option value="1">Summer</option><option value="2">Fall</option><option value="3">Winter</option></select></label>
+      <label><span class="sr">Day</span><select id="tday" aria-label="Day today" disabled></select></label></div>
+    <div id="bdlist"></div>
+  </section>
 
   <section class="box" id="dirbox">
     <div class="dirhead">
       <h2>All villagers</h2>
       <span class="count" id="count"></span>
     </div>
-    <div class="chips" style="margin-bottom:12px">
+    <div class="chips" style="margin-bottom:12px" id="chips">
       <button class="btn" data-filter="all" aria-pressed="true">All maps</button>
       <button class="btn" data-filter="town" aria-pressed="false">Pelican Town</button>
       <button class="btn" data-filter="sve" aria-pressed="false">Valley</button>
       <button class="btn" data-filter="rsv" aria-pressed="false">Ridgeside</button>
+      <button class="btn" data-filter="es" aria-pressed="false">East Scarp</button>
+      <button class="btn" id="favchip" aria-pressed="false">&#9733; Favorites</button>
     </div>
     <div class="grid" id="dir"></div>
   </section>
+
+  <dialog id="moddlg" aria-labelledby="modtitle">
+    <h2 id="modtitle">Which mods are you playing?</h2>
+    <p>Base Stardew Valley is always included. Turn a mod off to hide its villagers, map and gifts. You can change this any time.</p>
+    <label class="modrow"><input type="checkbox" data-mod="sve"><span><b>Stardew Valley Expanded</b><small id="cnt-sve"></small></span></label>
+    <label class="modrow"><input type="checkbox" data-mod="rsv"><span><b>Ridgeside Village</b><small id="cnt-rsv"></small></span></label>
+    <label class="modrow"><input type="checkbox" data-mod="es"><span><b>East Scarp</b><small id="cnt-es"></small></span></label>
+    <button class="btn" id="moddone" type="button">Done</button>
+  </dialog>
 
   <div class="box" style="display:grid;gap:8px">
     <p class="note" id="foot"></p>
@@ -197,6 +257,12 @@ const VANG={"Alex":"Complete Breakfast, Jack Be Nimble Jack Be Thick, Salmon Din
 Object.assign(GIFTS,VANG);delete GNOTE.Sandy;
 ROM.town=["Alex","Harvey","Sam","Abigail","Emily","Haley","Penny","Olivia","Victor"];
 ROM.sve=ROM.sve.concat(["Elliott","Leah","Maru","Sebastian","Shane"]);
+const ESG={"Aideen":"Elvish Jewelry, Ornamental Fan, Blue Jazz","Beatrice":"Frozen Tear, Potato, Parsnip Soup, Tom Kha Soup, Biteback Curry","Corwin":"Purple Mushroom, Pale Ale, Treasure Chest","Dale":"Any tea, Hot Choco, Soothing Cure","Eyvinder":"Magic Rock Candy, Azure Chrysanthemum, Serruria, Pucker Wort, Void Goat Cheese Aged","Edith":"Maple Syrup, Oyster, Roe, Rainbow Shell, Vegetable Medley, Fruit Salad, Coffee","Ethan":"Maple Syrup, Complete Breakfast, Vegetable Medley, Hazelnut, Hot Choco","Jacob":"Fried Mushroom, Hashbrowns, Survival Burger, Cranberries","Eloise":"Daffodil, Pink Cake, Duck Feather, Rainbow Shell, Dinosaur Egg, Cheesy Jelly Toast, Blue Jay Feather, Pelican Feather, Wood Duck Feather, Ornithologists' Guild Nest, Candied Cuccaroot, Hot Choco","Jasper":"Diamond, Fire Quartz, Miner's Treat, Rare Disc, Dwarvish Helm, Dwarf Gadget, Blueberry, Apple, Jasper, Opal, Chessboard","Jessie":"Rhubarb Pie, Red Plate, Melon, Chanterelle, Cranberries, Cuccaroot","Josephine":"Jelly, Honey, Wine, Zinfazu Icecream","Juliet":"Poppy, Red Mushroom, Green Tea, Poppyseed Muffin, Maple Bar","Keanu":"Fried Calamari, Salmon Dinner, Fish Taco, Fried Eel, Spicy Eel, Sashimi, Maki Roll, Dish O' The Sea, Seafoam Pudding, Poi, Tropical Curry","Lexi":"Melon, Ice Cream, Chocolate Cake, Plum Pudding, Frost Berry, Bite Back Melon","Luma":"Raisins, Ruby, Amethyst, Aquamarine, Emerald, Topaz, Jade, Diamond, Elvish Jewelry, Honey, Sweet Gem Berry, Lunarite","Michael":"Coconut, Jelly, Rabbit's Foot, Tulip, Salmon Dinner, Sea Glass","Oliver":"Petrified Slime, Prehistoric Skull, Amphibian Fossil, Trilobite","Rosa":"Baryte, Ice Cream, Strawberry","Victoria":"Green Slime Egg, Blue Slime Egg, Red Slime Egg, Purple Slime Egg, Petrified Slime, Ginger Ale, Tiger Slime Egg, Frost Berry Bliss Balls","Vivienne":"Ruby, Vintage Ruby Ring","Stella":"Triple Shot Espresso, Coffee, Summer Spangle, Lucky Lunch, Beer","Jade":"Jade, Elvish Jewelry, Fairy Rose, Fairy Seeds, Fairy Stone","Kataryna":"Triple Shot Espresso, Ocean Stone, Fairy Dust, Elvish Jewelry, Ghost Crystal","Kennedy":"Mayonnaise, Duck Mayonnaise","Tristan":"Fried Calamari, Salmon Dinner, Baked Fish, Sashimi, Flounder, Cheese, Goat Cheese, Lobster, Wool"};
+Object.assign(GIFTS,ESG);
+["Aideen","Victoria","Corwin","Dale","Jade","Tristan","Jasper","Juliet","Kataryna"].forEach(n=>ROM.es=(ROM.es||[]).concat(n));
+/* Birthdays: [season index 0-3, day]. Season 0 Spring, 1 Summer, 2 Fall, 3 Winter. Read from each mod's own data files. */
+const BDAY={"Abigail":[2,13],"Alex":[1,13],"Caroline":[1,7],"Clint":[3,26],"Demetrius":[1,19],"Dwarf":[1,22],"Elliott":[2,5],"Emily":[0,27],"Evelyn":[3,20],"George":[2,24],"Gus":[1,8],"Haley":[0,14],"Harvey":[3,14],"Jas":[1,4],"Jodi":[2,11],"Kent":[0,4],"Krobus":[3,1],"Leah":[3,23],"Lewis":[0,7],"Linus":[3,3],"Marnie":[2,18],"Maru":[1,10],"Pam":[0,18],"Penny":[2,2],"Pierre":[0,26],"Robin":[2,21],"Sam":[1,17],"Sandy":[2,15],"Sebastian":[3,10],"Shane":[0,20],"Vincent":[0,10],"Willy":[1,24],"Magnus":[3,17],"Leo":[1,26],"Gunther":[3,12],"Marlon":[3,19],"Andy":[0,23],"Claire":[2,8],"Lance":[0,8],"Martin":[1,6],"Morgan":[2,7],"Morris":[0,2],"Olivia":[0,15],"Scarlett":[1,7],"Sophia":[3,27],"Susan":[2,28],"Victor":[1,23],"Richard":[2,3],"Ysabelle":[0,11],"Flor":[1,14],"Philip":[0,17],"Ian":[2,14],"Sean":[0,22],"Kenneth":[1,18],"Paula":[2,27],"Lenny":[1,16],"Maddie":[2,23],"Corine":[2,26],"Ezekiel":[0,12],"Lorenzo":[2,1],"Anton":[0,9],"Kiarra":[1,13],"Shanice":[3,26],"Jeric":[3,2],"Bryle":[1,1],"Naomi":[0,18],"Shiro":[3,28],"Yuuma":[2,4],"Faye":[1,12],"Pika":[3,21],"Keahi":[3,11],"Carmen":[2,21],"Blair":[3,5],"Freddie":[3,18],"Lola":[1,2],"Maive":[0,14],"Zayne":[2,2],"Ariah":[2,4],"Louie":[3,16],"Sonny":[0,28],"Irene":[3,27],"Mr. Aguar":[1,25],"Alissa":[0,5],"Malaya":[1,27],"Kimpoi":[2,5],"Trinnie":[0,16],"Olga":[1,9],"Bert":[0,28],"Torts":[0,1],"June":[2,12],"Aideen":[1,21],"Beatrice":[0,17],"Eloise":[0,22],"Eyvinder":[3,15],"Jacob":[1,27],"Jessie":[1,1],"Juliet":[0,15],"Lexi":[1,12],"Oliver":[1,6],"Rosa":[2,7],"Victoria":[3,6],"Vivienne":[2,14],"Kennedy":[2,6],"Luma":[1,4],"Jasper":[2,22],"Corwin":[1,14],"Edith":[3,15],"Michael":[2,7],"Ethan":[2,10],"Stella":[3,22],"Dale":[0,25],"Keanu":[2,3],"Jade":[3,4],"Tristan":[1,20]};
+const SEASONS=["Spring","Summer","Fall","Winter"];
 /* Coordinates are canvas pixels in each map's own size. x,y = doorstep (bottom center) of a building.
    tg:[dx,dy] nudges the name tag; ta:"l"|"r" anchors the tag to the left/right of the point. */
 const DATA={
@@ -298,6 +364,52 @@ const DATA={
    P.bushes(44);P.flowers(260);
   }
  },
+  es:{
+   name:"East Scarp",size:[400,600],sz:.95,minw:400,maxw:620,
+   foot:"Traced from the East Scarp village map in the mod's files, 4 pixels to a game tile, so door positions are close but not exact. Homes outside the village (the Orchard, Deep Mountains, Zuzu Suburb and Lores Cove) are shown as signs on the edge they lead from. Oliver, Vivienne and Corwin move into their homes after story events. Cameron lives behind Kataryna's house.",
+   labels:[["East Scarp Beach",338,420],["Fairy Pool",372,64]],
+   houses:[
+    {n:"Vet House",w:"Northwest of the village; Oliver and Vivienne move in after story events",p:["Eloise","Jacob","Oliver","Vivienne"],x:56,y:92,t:"clinic",tg:[14,-12],ta:"l"},
+    {n:"Aideen's House",w:"West side of the village; Tristan moves in later",p:["Aideen","Tristan"],x:64,y:192,t:"cottage",c:2,bw:20},
+    {n:"Jessie's House",w:"Beside the road, east of Aideen's",p:["Jessie","Juliet","Jade"],x:124,y:192,t:"cottage",c:3,bw:22,tg:[-4,2],ta:"l"},
+    {n:"Dale's House",w:"North of the village green",p:["Dale"],x:200,y:136,t:"cottage",c:4,bw:20},
+    {n:"Jasper's House",w:"East of Jessie's",p:["Jasper"],x:196,y:200,t:"cottage",c:0,bw:20,tg:[16,-6],ta:"l"},
+    {n:"Village Inn",w:"Centre of the village; Josephine stays here after her first story event",p:["Rosa","Edith","Michael","Ethan","Josephine"],x:168,y:262,t:"hotel",tg:[0,2]},
+    {n:"Tori's Slime Basement",w:"West edge, beside the empty cottage; unlocked with the basement option",p:["Victoria"],x:36,y:248,t:"tiny",tg:[0,2]},
+    {n:"Lighthouse",w:"South end, on the coast; Corwin moves in after a story event",p:["Beatrice","Corwin"],x:288,y:508,t:"tower",tg:[-14,-40],ta:"r"},
+    {n:"Sea Cave",w:"Down on the beach",p:["Lexi"],x:310,y:460,t:"cave",tg:[10,0],ta:"l"},
+    {n:"Deep Mountains",w:"Through the north exit; Eyvinder's cave opens after a story event",p:["Eyvinder"],x:296,y:4,t:"edge",dir:"n"},
+    {n:"Orchard House",w:"East of the village through the Orchard; Luma's hut is inside after a story event",p:["Luma"],x:396,y:196,t:"edge",dir:"e"},
+    {n:"Lores Cove",w:"Beyond Scarp Crossing, west of the village; Keanu's house",p:["Keanu"],x:4,y:302,t:"edge",dir:"w"},
+    {n:"Zuzu Suburb",w:"The suburb district. Kataryna and Cameron share a house; Kennedy and Stella share another",p:["Kataryna","Cameron","Kennedy","Stella"],x:4,y:386,t:"edge",dir:"w"}
+   ],
+   extras:[{x:16,y:248,t:"cottage",c:5,bw:18,gray:1},{x:28,y:30,t:"tiny"},{x:352,y:128,t:"barn",bw:16}],
+   draw(P){
+    P.grass(4);
+    P.forestFill([[0,0],[400,0],[400,56],[250,66],[120,60],[0,64]],10);
+    P.forestFill([[0,64],[22,66],[18,220],[22,280],[0,284]],12);
+    P.forestFill([[0,372],[26,372],[30,600],[0,600]],12);
+    P.forestFill([[376,100],[400,100],[400,170],[376,170]],12);
+    P.region([[400,270],[352,300],[322,350],[296,408],[280,456],[274,520],[290,584],[330,600],[400,600]],"sand");
+    P.ocean([[400,296],[362,318],[338,364],[316,416],[304,470],[306,540],[322,588],[340,600],[400,600]]);
+    P.dirt([[296,0],[292,66],[246,122],[204,140]],6);
+    P.dirt([[204,140],[198,200]],5);
+    P.dirt([[396,194],[300,198],[198,202]],6);
+    P.dirt([[0,290],[80,282],[168,266]],6);
+    P.dirt([[0,350],[40,330],[80,300]],4);
+    P.dirt([[56,94],[60,150],[64,194],[124,194],[198,202]],5);
+    P.dirt([[124,194],[148,234],[168,264]],5);
+    P.dirt([[36,250],[80,268],[168,268]],4);
+    P.dirt([[168,266],[196,350],[250,424],[284,500]],6);
+    P.dirt([[258,430],[300,462]],4);
+    P.plaza(104,246,28,14);
+    P.pond(372,76,12,8);
+    P.silo(352,118);
+    P.well(118,242);P.lamp(102,244);P.lamp(136,244);P.lamp(206,198);P.lamp(60,196);
+    P.field(210,300,40,26);
+    P.bushes(46);P.flowers(210);
+   }
+  },
  sve:{
   name:"The Valley",size:[600,300],sz:0.62,small:1,
   foot:"Traced from the Stardew Valley Expanded world map, with buildings identified against the vanilla map. Pelican Town's own residents are on the Pelican Town map. Lance's home, the First Slash Guild Hall, is on Fable Reef and reached by a hidden warp rune. Claire and Martin live in the countryside and come in by bus. Morris only lives here on the Joja route. Camilla, Isaac, Alesia, Bear and Gil can't be gifted.",
@@ -521,7 +633,8 @@ function painter(seed,map){
 /* ---------- data helpers ---------- */
 const ROMSET=new Set(["Alex","Elliott","Harvey","Sam","Sebastian","Shane","Abigail","Emily","Haley","Leah","Maru","Penny",
  "Claire","Lance","Magnus","Olivia","Scarlett","Sophia","Victor",
- "Ian","Jeric","June","Kenneth","Philip","Sean","Shiro","Alissa","Blair","Corine","Flor","Kiarra","Maddie","Ysabelle","Anton","Bryle","Daia","Faye","Irene","Jio","Paula","Zayne"]);
+ "Ian","Jeric","June","Kenneth","Philip","Sean","Shiro","Alissa","Blair","Corine","Flor","Kiarra","Maddie","Ysabelle","Anton","Bryle","Daia","Faye","Irene","Jio","Paula","Zayne",
+ "Aideen","Victoria","Corwin","Dale","Jade","Tristan","Jasper","Juliet","Kataryna"]);
 GIFTS.Magnus=SVEG.Magnus;
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const isRom=n=>ROMSET.has(base(n));
@@ -531,10 +644,26 @@ Object.entries(DATA).forEach(([mk,m])=>m.houses.forEach((h,i)=>h.p.forEach(n=>PE
 PEOPLE.sort((a,c)=>base(a.n).localeCompare(base(c.n)));
 
 /* ---------- UI ---------- */
-let cur="town",sel=-1,romOn=false,tick=0,tops=[],mapFilter="all";
-try{const s0=localStorage.getItem("vra-tab2");if(s0&&DATA[s0])cur=s0}catch(e){}
+const store={get(k){try{return localStorage.getItem(k)}catch(e){return null}},set(k,v){try{localStorage.setItem(k,v)}catch(e){}}};
+/* Which mods the player has. Base Stardew Valley is always on. */
+const SVEONLY=new Set(["Claire","Lance","Olivia","Victor","Scarlett","Sophia","Andy","Apples","Susan","Morgan","Henchman","Martin","Bear","Camilla","Isaac","Alesia"]);
+let mods={sve:true,rsv:true,es:true};
+const savedMods=store.get("vra-mods");
+if(savedMods){try{Object.assign(mods,JSON.parse(savedMods))}catch(e){}}
+let favs=new Set();try{favs=new Set(JSON.parse(store.get("vra-fav")||"[]"))}catch(e){}
+const visible=n=>mods.sve||!SVEONLY.has(base(n));
+const mapOn=mk=>mk==="rsv"?mods.rsv:mk==="es"?mods.es:true;
+const peopleOf=h=>h.p.filter(visible);
+const inScope=p=>visible(p.n)&&mapOn(p.mk);
+const bdText=n=>{const b=BDAY[base(n)];return b?SEASONS[b[0]]+" "+b[1]:""};
+
+let cur="town",sel=-1,romOn=false,favOn=false,tick=0,tops=[],mapFilter="all";
+{const s0=store.get("vra-tab2");if(s0&&DATA[s0])cur=s0}
+if(!mapOn(cur))cur="town";
 const reduce=matchMedia("(prefers-reduced-motion: reduce)").matches;
-const stage=document.getElementById("stage"),q=document.getElementById("q"),count=document.getElementById("count"),foot=document.getElementById("foot"),dir=document.getElementById("dir");
+const phone=matchMedia("(max-width:720px)");
+const stage=document.getElementById("stage"),q=document.getElementById("q"),count=document.getElementById("count"),foot=document.getElementById("foot"),dir=document.getElementById("dir"),mapbox=document.getElementById("mapbox"),swipe=document.getElementById("swipe");
+let swipeDone=false;
 
 function compose(){
   ctx.drawImage(baseCv,0,0);
@@ -544,10 +673,12 @@ function compose(){
   foamLine.forEach(([x,y])=>{if((x+tick)%4<2)ctx.fillRect(x,y,1,1)});
 }
 const pct=(x,y)=>({left:(x/W*100)+"%",top:(y/H*100)+"%"});
+const EDGEI={n:"▲",s:"▼",w:"◀",e:"▶"};
 function render(){
   const d=DATA[cur];MAP=d;[W,H]=d.size;sel=-1;water=[];windows=[];foamLine=[];fallPts=[];
   cv.width=W;cv.height=H;baseCv.width=W;baseCv.height=H;stage.style.aspectRatio=W+"/"+H;
-  const E=painter({rsv:1,town:3,sve:2}[cur],d);
+  stage.style.minWidth=(d.minw||900)+"px";stage.style.maxWidth=d.maxw?d.maxw+"px":"100%";stage.style.marginInline=d.maxw?"auto":"0";
+  const E=painter({rsv:1,town:3,sve:2,es:4}[cur],d);
   const all=[...d.houses.map((h,i)=>({h,i})),...(d.extras||[]).map(h=>({h,i:-1}))];
   all.forEach(({h})=>{if(h.t==="edge"||h.t==="townlink")return;const sp=E.specOf(h);const S=d.sz||1;const w=(({tower:16,tiny:12,busstop:30,cave:18,trailer:34,tent:22,grate:12}[h.t]||sp.w||20)*(h.t in{tower:1,tent:1}?S:1))+6;const ht=(h.t==="tower"?40:30)*(S<1?.8:1);E.M(h.x-w/2,h.y-ht,w,ht+4,2)});
   d.draw(E.P);
@@ -560,46 +691,48 @@ function render(){
   d.labels.forEach(([t,x,y])=>{const e=document.createElement("span");e.className="tag";e.textContent=t;Object.assign(e.style,pct(x,y));stage.appendChild(e)});
   d.houses.forEach((h,i)=>{
     const el=document.createElement("button");el.dataset.i=i;
-    if(h.t==="townlink"){el.className="sign big";el.innerHTML=`<b>Pelican Town</b><small>${PEOPLE.filter(p=>p.mk==="town").length} residents · open map ›</small>`;Object.assign(el.style,pct(h.x,h.y));el.addEventListener("click",()=>switchTo("town"));stage.appendChild(el);return}
+    if(h.t==="townlink"){el.className="sign big";el.innerHTML=`<b>Pelican Town</b><small>${PEOPLE.filter(p=>p.mk==="town"&&visible(p.n)).length} residents · open map ›</small>`;Object.assign(el.style,pct(h.x,h.y));el.addEventListener("click",()=>switchTo("town"));stage.appendChild(el);return}
+    const ppl=peopleOf(h);if(!ppl.length)return;
     el.className="ntag"+(h.t==="edge"?" edge "+h.dir:"");
-    el.innerHTML=(h.t==="edge"?`<i>${h.dir==="n"?"▲":"▶"} ${esc(h.n)}</i>`:"")+h.p.map(n=>`<span class="${isRom(n)?"r":""}">${esc(n)}</span>`).join("");
-    el.setAttribute("aria-label",h.n+": "+h.p.join(", "));
+    el.innerHTML=(h.t==="edge"?`<i>${EDGEI[h.dir]} ${esc(h.n)}</i>`:"")+ppl.map(n=>`<span class="${isRom(n)?"r":""}">${esc(n)}</span>`).join("");
+    el.setAttribute("aria-label",h.n+": "+ppl.join(", "));
     const tg=h.tg||[0,0];let ax=h.x+tg[0],ay=(h.t==="edge"?h.y:h.y+2)+tg[1];
     Object.assign(el.style,pct(ax,ay));
-    el.style.transform=h.t==="edge"?(h.dir==="e"?"translate(-100%,-50%)":"translate(-50%,0)"):h.ta==="r"?"translate(-100%,0)":h.ta==="l"?"translate(0,0)":"translate(-50%,0)";
+    el.style.transform=h.t==="edge"?({e:"translate(-100%,-50%)",w:"translate(0,-50%)",s:"translate(-50%,-100%)"}[h.dir]||"translate(-50%,0)"):h.ta==="r"?"translate(-100%,0)":h.ta==="l"?"translate(0,0)":"translate(-50%,0)";
     el.addEventListener("click",()=>{select(i);reveal("nearest")});stage.appendChild(el);
   });
-  (d.links||[]).forEach(L=>{const el=document.createElement("button");el.className="sign link "+L.dir;el.innerHTML=`<b>${{n:"▲",s:"▼",w:"◀",e:"▶"}[L.dir]} ${esc(L.txt.split(":")[0])}</b><small>${esc(L.txt.split(":")[1]||"")}</small>`;
+  (d.links||[]).forEach(L=>{const el=document.createElement("button");el.className="sign link "+L.dir;el.innerHTML=`<b>${EDGEI[L.dir]} ${esc(L.txt.split(":")[0])}</b><small>${esc(L.txt.split(":")[1]||"")}</small>`;
     Object.assign(el.style,pct(L.x,L.y));el.style.transform={n:"translate(-50%,0)",s:"translate(-50%,-100%)",w:"translate(0,-50%)",e:"translate(-100%,-50%)"}[L.dir];
     el.addEventListener("click",()=>{const k=DATA[L.to].houses.findIndex(h=>h.n===L.focus);switchTo(L.to);if(k>=0)showOn(L.to,k)});stage.appendChild(el)});
-  foot.textContent=d.foot;
+  foot.textContent=d.foot+(cur==="sve"&&!mods.sve?" Expanded is switched off, so only base-game residents are shown on this map; its layout still follows the Expanded valley.":"");
   document.querySelectorAll("[data-map]").forEach(bn=>bn.setAttribute("aria-selected",bn.dataset.map===cur));
+  swipe.hidden=swipeDone||mapbox.scrollWidth<=mapbox.clientWidth+2;
   filter();
 }
-function switchTo(mk){if(mk===cur)return;cur=mk;try{localStorage.setItem("vra-tab2",cur)}catch(e){}render()}
-const phone=matchMedia("(max-width:720px)");
+function switchTo(mk){if(mk===cur)return;cur=mk;store.set("vra-tab2",cur);render()}
 function reveal(how){
   const t=stage.querySelector(".ntag.on");if(!t)return;
   if(!phone.matches){t.scrollIntoView({behavior:reduce?"auto":"smooth",block:how||"center",inline:"center"});return}
   /* phone: centre the tag in the space between the search bar and the bottom sheet */
-  const beh=reduce?"auto":"smooth",mb=document.getElementById("mapbox"),pop=document.getElementById("pop");
-  const r=t.getBoundingClientRect(),m=mb.getBoundingClientRect();
-  mb.scrollBy({left:r.left+r.width/2-(m.left+mb.clientWidth/2),behavior:beh});
+  const beh=reduce?"auto":"smooth",pop=document.getElementById("pop");
+  const r=t.getBoundingClientRect(),m=mapbox.getBoundingClientRect();
+  mapbox.scrollBy({left:r.left+r.width/2-(m.left+mapbox.clientWidth/2),behavior:beh});
   const top=searchbar.getBoundingClientRect().bottom+8,bot=pop&&!pop.hidden?pop.getBoundingClientRect().top:innerHeight-80;
   window.scrollBy({top:r.top+r.height/2-(top+bot)/2,behavior:beh});
 }
 function showOn(mk,i){
   switchTo(mk);if(sel!==i)select(i);reveal("center");
 }
+const star=n=>`<button class="fav" type="button" data-n="${esc(base(n))}" aria-pressed="${favs.has(base(n))}" aria-label="Favorite ${esc(base(n))}">${favs.has(base(n))?"★":"☆"}</button>`;
 function select(i){
   sel=(sel===i)?-1:i;
   stage.querySelectorAll(".ntag").forEach(t=>t.classList.toggle("on",+t.dataset.i===sel));
   const pop=document.getElementById("pop");
   if(sel<0){pop.hidden=true;return}
   const h=DATA[cur].houses[sel];
-  const rows=h.p.map(n=>{const g=giftList(n);const nt=GNOTE[base(n)];
+  const rows=peopleOf(h).map(n=>{const g=giftList(n);const nt=GNOTE[base(n)];const bd=bdText(n);
     const txt=g.length?`<span class="lv">Loves:</span> ${esc(g.join(", "))}`:(nt?`<i>${esc(nt)}</i>`:"");
-    return `<div class="res"><b class="${isRom(n)?"r":""}">${esc(n)}</b>${txt?`<div class="gl">${txt}</div>`:""}</div>`}).join("");
+    return `<div class="res"><div class="rl"><b class="${isRom(n)?"r":""}">${esc(n)}</b>${bd?`<span class="bd">Birthday ${esc(bd)}</span>`:""}${star(n)}</div>${txt?`<div class="gl">${txt}</div>`:""}</div>`}).join("");
   pop.innerHTML=`<button class="x" aria-label="Close">&times;</button><h3>${esc(h.n)}</h3><div class="where">${esc(h.w)}</div>${rows}`;
   pop.querySelector(".x").addEventListener("click",()=>select(sel));
   const ax=h.x+(h.tg?h.tg[0]:0);
@@ -608,21 +741,22 @@ function select(i){
   pop.style.transform=`translate(${tx},${below?"0":"-100%"})`;
   pop.hidden=false;
 }
-function matches(p,v){if(romOn&&!isRom(p.n))return false;if(!v)return true;return p.n.toLowerCase().includes(v)||p.h.n.toLowerCase().includes(v)||giftList(p.n).join(", ").toLowerCase().includes(v)}
+function matches(p,v){if(romOn&&!isRom(p.n))return false;if(favOn&&!favs.has(base(p.n)))return false;if(!v)return true;return p.n.toLowerCase().includes(v)||p.h.n.toLowerCase().includes(v)||giftList(p.n).join(", ").toLowerCase().includes(v)}
 function filter(){
-  const v=q.value.trim().toLowerCase();const act=!!v||romOn;
-  stage.querySelectorAll(".ntag").forEach(t=>{const h=DATA[cur].houses[+t.dataset.i];let any=false;
-    t.querySelectorAll("span").forEach((sp,k)=>{const m=act&&matches({n:h.p[k],h},v);sp.classList.toggle("hit",m);if(m)any=true});
+  const v=q.value.trim().toLowerCase();const act=!!v||romOn||favOn;
+  stage.querySelectorAll(".ntag").forEach(t=>{const h=DATA[cur].houses[+t.dataset.i];const ppl=peopleOf(h);let any=false;
+    t.querySelectorAll("span").forEach((sp,k)=>{const m=act&&matches({n:ppl[k],h},v);sp.classList.toggle("hit",m);if(m)any=true});
     t.classList.toggle("dim",act&&!any)});
-  const list=PEOPLE.filter(p=>(mapFilter==="all"||p.mk===mapFilter)&&matches(p,v));
-  count.textContent=act?`${list.length} villager${list.length===1?"":"s"} match`:`${PEOPLE.length} villagers on 3 maps`;
-  dir.innerHTML=list.map(p=>{const g=giftList(p.n),nt=GNOTE[base(p.n)];
-    return `<article class="card"><header><b class="${isRom(p.n)?"r":""}">${esc(p.n)}</b><button class="go" data-mk="${p.mk}" data-i="${p.i}">Show on map</button></header>
-    <div class="home">${esc(p.h.n)} · <span>${esc(DATA[p.mk].name)}</span></div>
-    <div class="gifts">${g.length?`<span class="lv">Loves:</span> ${esc(g.join(", "))}`:`<i>${esc(nt||"No loved gifts listed")}</i>`}</div></article>`}).join("")||`<p class="empty">No villagers match. Try another name or gift, or turn off Romanceable.</p>`;
-  dir.querySelectorAll(".go").forEach(bn=>bn.addEventListener("click",()=>showOn(bn.dataset.mk,+bn.dataset.i)));
+  const scope=PEOPLE.filter(inScope);
+  const list=scope.filter(p=>(mapFilter==="all"||p.mk===mapFilter)&&matches(p,v));
+  const uniq=new Set(scope.map(p=>base(p.n))).size,nmaps=Object.keys(DATA).filter(mapOn).length;
+  count.textContent=act?`${list.length} villager${list.length===1?"":"s"} match`:`${uniq} villagers on ${nmaps} maps`;
+  dir.innerHTML=list.map(p=>{const g=giftList(p.n),nt=GNOTE[base(p.n)],bd=bdText(p.n);
+    return `<article class="card"><header><b class="${isRom(p.n)?"r":""}">${esc(p.n)}</b><span class="acts">${star(p.n)}<button class="go" data-mk="${p.mk}" data-i="${p.i}">Show on map</button></span></header>
+    <div class="home">${esc(p.h.n)} · <span>${esc(DATA[p.mk].name)}</span>${bd?` · Birthday ${esc(bd)}`:""}</div>
+    <div class="gifts">${g.length?`<span class="lv">Loves:</span> ${esc(g.join(", "))}`:`<i>${esc(nt||"No loved gifts listed")}</i>`}</div></article>`}).join("")||`<p class="empty">${favOn&&!favs.size?"No favorites yet. Tap the star on any villager to pin them here.":"No villagers match. Try another name or gift, or turn off a filter."}</p>`;
   clr.hidden=!q.value;
-  renderResults(v,list);
+  renderResults(v,scope.filter(p=>matches(p,v)));
 }
 /* ---------- search results panel ---------- */
 const results=document.getElementById("results"),clr=document.getElementById("clr"),searchbar=document.getElementById("searchbar");
@@ -631,13 +765,13 @@ const hl=(txt,v)=>{if(!v)return esc(txt);const i=txt.toLowerCase().indexOf(v);re
 function setPanel(o){panelOpen=o;renderResults(q.value.trim().toLowerCase())}
 function renderResults(v,list){
   if(!panelOpen){results.hidden=true;return}
-  if(!v&&!romOn){
+  if(!v&&!romOn&&!favOn){
     results.innerHTML=`<div class="rhead">Search by villager, home or loved gift</div><div class="sugg">${["Abigail","Robin","Pierre's","Spaghetti","Pizza","Diamond"].map(t=>`<button class="btn" type="button" data-s="${esc(t)}">${esc(t)}</button>`).join("")}</div>`;
     results.hidden=false;return}
-  list=list||PEOPLE.filter(p=>matches(p,v));
-  const rows=list.map(p=>{const g=giftList(p.n);
+  list=list||PEOPLE.filter(p=>inScope(p)&&matches(p,v));
+  const rows=list.map(p=>{const g=giftList(p.n),bd=bdText(p.n);
     const gifts=g.length?`<span class="rg"><b>Loves:</b> ${g.map(x=>v&&x.toLowerCase().includes(v)?hl(x,v):esc(x)).join(", ")}</span>`:"";
-    return `<button class="row" type="button" data-mk="${p.mk}" data-i="${p.i}"><span class="rn ${isRom(p.n)?"r":""}">${hl(p.n,v)}</span><span class="rm">${hl(p.h.n,v)} · ${esc(DATA[p.mk].name)}</span>${gifts}</button>`}).join("");
+    return `<button class="row" type="button" data-mk="${p.mk}" data-i="${p.i}"><span class="rn ${isRom(p.n)?"r":""}">${hl(p.n,v)}</span><span class="rm">${hl(p.h.n,v)} · ${esc(DATA[p.mk].name)}${bd?` · Birthday ${esc(bd)}`:""}</span>${gifts}</button>`}).join("");
   results.innerHTML=`<div class="rhead">${list.length?`${list.length} match${list.length===1?"":"es"}. Tap one to find it on the map.`:"No villagers match. Try another name or gift."}</div>${rows}`;
   results.hidden=false;
 }
@@ -653,14 +787,84 @@ q.addEventListener("keydown",e=>{
 });
 clr.addEventListener("click",()=>{q.value="";filter();q.focus()});
 document.addEventListener("pointerdown",e=>{if(panelOpen&&!searchbar.contains(e.target))setPanel(false)});
-document.getElementById("tolist").addEventListener("click",()=>document.getElementById("dirbox").scrollIntoView({behavior:reduce?"auto":"smooth",block:"start"}));
-document.getElementById("mapbox").addEventListener("scroll",()=>document.getElementById("swipe").classList.add("gone"),{once:true,passive:true});
+
+/* ---------- favorites ---------- */
+document.addEventListener("click",e=>{
+  const f=e.target.closest(".fav");if(!f)return;
+  const n=f.dataset.n;favs.has(n)?favs.delete(n):favs.add(n);store.set("vra-fav",JSON.stringify([...favs]));
+  document.querySelectorAll(".fav").forEach(b=>{if(b.dataset.n===n){const on=favs.has(n);b.setAttribute("aria-pressed",on);b.textContent=on?"★":"☆"}});
+  if(favOn)filter();
+});
+document.getElementById("favchip").addEventListener("click",e=>{favOn=!favOn;e.currentTarget.setAttribute("aria-pressed",favOn);filter()});
+
+/* ---------- birthdays ---------- */
+const bdlist=document.getElementById("bdlist"),bdnext=document.getElementById("bdnext"),tseason=document.getElementById("tseason"),tday=document.getElementById("tday");
+tday.innerHTML=Array.from({length:28},(_,i)=>`<option value="${i+1}">${i+1}</option>`).join("");
+let today=null;{try{const t=JSON.parse(store.get("vra-today")||"null");if(t&&t[0]>=0&&t[0]<4&&t[1]>=1&&t[1]<=28)today=t}catch(e){}}
+let bdSeason=today?today[0]:0;
+const dayIdx=(s,d)=>s*28+d;
+function birthdayPeople(){
+  const seen=new Set(),out=[];
+  PEOPLE.filter(inScope).forEach(p=>{const k=base(p.n);if(seen.has(k)||!BDAY[k])return;seen.add(k);out.push({...p,k,b:BDAY[k]})});
+  return out;
+}
+function renderBdays(){
+  tseason.value=today?today[0]:"";tday.disabled=!today;if(today)tday.value=today[1];
+  document.querySelectorAll("[data-season]").forEach(b=>b.setAttribute("aria-selected",+b.dataset.season===bdSeason));
+  const all=birthdayPeople();
+  if(today){
+    const t=dayIdx(...today);
+    const up=all.map(p=>({p,diff:(dayIdx(p.b[0],p.b[1])-t+112)%112})).filter(x=>x.diff<=7).sort((a,c)=>a.diff-c.diff||base(a.p.n).localeCompare(base(c.p.n)));
+    bdnext.textContent=up.length?"Up next: "+up.slice(0,3).map(x=>`${base(x.p.n)} ${x.diff===0?"today":x.diff===1?"tomorrow":"in "+x.diff+" days"}`).join(", "):"No birthdays in the next week";
+  }else bdnext.textContent="";
+  const days={};all.filter(p=>p.b[0]===bdSeason).forEach(p=>(days[p.b[1]]=days[p.b[1]]||[]).push(p));
+  const keys=Object.keys(days).map(Number).sort((a,c)=>a-c);
+  bdlist.innerHTML=keys.length?keys.map(d=>{
+    const isNow=today&&today[0]===bdSeason&&today[1]===d;
+    return `<div class="bdday${isNow?" now":""}"><div class="bdn">${d}<small>${["Spr","Sum","Fall","Win"][bdSeason]}${isNow?" · today":""}</small></div><div class="bdp">${days[d].map(p=>{const g=giftList(p.n);
+      return `<div><div class="who"><b class="${isRom(p.n)?"r":""}">${esc(p.n)}</b>${star(p.n)}<button class="go" data-mk="${p.mk}" data-i="${p.i}">Show on map</button></div><div class="gl">${g.length?`<span class="lv">Loves:</span> ${esc(g.slice(0,4).join(", "))}${g.length>4?" …":""}`:""}</div></div>`}).join("")}</div></div>`}).join(""):`<p class="empty">No birthdays this season for the mods you have on.</p>`;
+  bdlist.querySelectorAll(".go").forEach(bn=>bn.addEventListener("click",()=>showOn(bn.dataset.mk,+bn.dataset.i)));
+}
+document.querySelectorAll("[data-season]").forEach(b=>b.addEventListener("click",()=>{bdSeason=+b.dataset.season;renderBdays()}));
+function saveToday(){const s=tseason.value;if(s===""){today=null;store.set("vra-today","null")}else{today=[+s,+tday.value||1];bdSeason=today[0];store.set("vra-today",JSON.stringify(today))}renderBdays()}
+tseason.addEventListener("change",saveToday);tday.addEventListener("change",saveToday);
+
+/* ---------- mods ---------- */
+const moddlg=document.getElementById("moddlg"),modsum=document.getElementById("modsum");
+const MODN={sve:"Expanded",rsv:"Ridgeside",es:"East Scarp"};
+function modCounts(){
+  const u=mk=>new Set(PEOPLE.filter(p=>p.mk===mk).map(p=>base(p.n))).size;
+  document.getElementById("cnt-sve").textContent=`Adds the Valley map and ${SVEONLY.size} villagers`;
+  document.getElementById("cnt-rsv").textContent=`Adds the Ridgeside map and ${u("rsv")} villagers`;
+  document.getElementById("cnt-es").textContent=`Adds the East Scarp map and ${u("es")} villagers`;
+}
+function applyMods(){
+  store.set("vra-mods",JSON.stringify(mods));
+  const on=Object.keys(MODN).filter(k=>mods[k]);
+  modsum.textContent="Mods: "+(on.length?on.map(k=>MODN[k]).join(", "):"base game only");
+  let n=0;
+  document.querySelectorAll("[data-map]").forEach(b=>{const o=mapOn(b.dataset.map);b.hidden=!o;if(o)n++});
+  document.getElementById("tabs").style.setProperty("--n",n);
+  document.querySelectorAll("[data-filter]").forEach(b=>{b.hidden=b.dataset.filter!=="all"&&!mapOn(b.dataset.filter)});
+  if(!mapOn(mapFilter)){mapFilter="all";document.querySelectorAll("[data-filter]").forEach(x=>x.setAttribute("aria-pressed",x.dataset.filter==="all"))}
+  if(!mapOn(cur)){cur="town";store.set("vra-tab2",cur)}
+  render();renderBdays();
+}
+document.querySelectorAll("[data-mod]").forEach(c=>c.addEventListener("change",()=>{mods[c.dataset.mod]=c.checked;applyMods()}));
+document.getElementById("modbtn").addEventListener("click",()=>{document.querySelectorAll("[data-mod]").forEach(c=>c.checked=!!mods[c.dataset.mod]);moddlg.showModal()});
+document.getElementById("moddone").addEventListener("click",()=>moddlg.close());
+moddlg.addEventListener("close",()=>store.set("vra-mods",JSON.stringify(mods)));
+
 document.querySelectorAll("[data-map]").forEach(bn=>bn.addEventListener("click",()=>switchTo(bn.dataset.map)));
 document.querySelectorAll("[data-filter]").forEach(bn=>bn.addEventListener("click",()=>{mapFilter=bn.dataset.filter;document.querySelectorAll("[data-filter]").forEach(x=>x.setAttribute("aria-pressed",x===bn));filter()}));
 q.addEventListener("input",()=>{if(!panelOpen)panelOpen=true;filter()});
 document.getElementById("rom").addEventListener("click",e=>{romOn=!romOn;e.currentTarget.setAttribute("aria-pressed",romOn);filter()});
-render();
+document.getElementById("tolist").addEventListener("click",()=>document.getElementById("bdbox").scrollIntoView({behavior:reduce?"auto":"smooth",block:"start"}));
+mapbox.addEventListener("scroll",()=>{swipeDone=true;swipe.hidden=true},{once:true,passive:true});
+modCounts();applyMods();
+if(!savedMods){document.querySelectorAll("[data-mod]").forEach(c=>c.checked=true);moddlg.showModal()}
 if(!reduce)setInterval(()=>{tick++;compose()},450);
+if("serviceWorker" in navigator&&location.protocol.startsWith("http"))navigator.serviceWorker.register("sw.js").catch(()=>{});
 </script>
 
 </html>
