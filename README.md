@@ -10,6 +10,6 @@ It's a single `index.html` file with no build step and no dependencies. Open it 
 
 - The map art is original. Building positions follow each wiki's location descriptions, so they're close but not exact.
 - Loved gifts come from the Stardew Valley Wiki, the Stardew Valley Expanded Wiki, and the Ridgeside Village Wiki. Game-wide "universal" loves are left out.
-- The time-of-day view uses each villager's usual schedule for a chosen season, weekday and weather. Base-game schedules come from a public data dump of the game files, East Scarp's from the mod files. Festivals, story events and friendship-heart schedules are not included, and Expanded and Ridgeside villagers stay at home because their schedules aren't loaded yet.
+- The time-of-day view uses each villager's usual schedule for a chosen season, weekday and weather. Base-game schedules were read directly from the game's own files, and Expanded, Ridgeside and East Scarp schedules from each mod's files. Festivals, story events and friendship-heart schedules are not included. Villagers with no schedule (for example Krobus, the Dwarf and Bear) stay home.
 - East Scarp gifts, birthdays, romance flags and door positions were read from the mod's own data files (version 3.0.x), and item IDs were matched to names. Expanded and Ridgeside birthdays also come from the mods' data files. Villagers with no birthday in the files show none.
 - This is a fan-made reference and isn't affiliated with ConcernedApe or the mod authors.
