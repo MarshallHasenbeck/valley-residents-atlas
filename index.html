@@ -27,6 +27,7 @@ body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16p
   background-image:linear-gradient(45deg,var(--bg2) 25%,transparent 25%,transparent 75%,var(--bg2) 75%),linear-gradient(45deg,var(--bg2) 25%,transparent 25%,transparent 75%,var(--bg2) 75%);
   background-size:32px 32px;background-position:0 0,16px 16px}
 .wrap{max-width:1240px;margin:0 auto;padding-inline:16px;padding-block:20px 44px;display:grid;gap:16px}
+html{scroll-behavior:auto}
 .box{background:var(--paper);border:6px solid var(--wood);box-shadow:inset 0 0 0 3px var(--paper2),0 0 0 3px var(--wood-lo),0 0 0 6px var(--wood-hi),8px 10px 0 6px rgba(0,0,0,.35);padding:14px;border-radius:4px}
 h1{font-family:var(--display);font-weight:700;font-size:clamp(1.7rem,4.4vw,2.6rem);margin:0;color:var(--leaf);text-shadow:3px 3px 0 #1f3a12,-1px -1px 0 #fff3c4;text-wrap:balance}
 h2{font-family:var(--display);font-weight:700;font-size:1.3rem;margin:0;color:var(--leaf)}
@@ -39,12 +40,56 @@ h2{font-family:var(--display);font-weight:700;font-size:1.3rem;margin:0;color:va
 .tabs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
 .tabs .btn{width:100%;padding:9px 6px;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .swipe{display:none;margin:-6px 0 0;color:#fff3c4;font-size:13px;text-align:center}
-@media (max-width:720px){.tabs .opt{display:none}.tabs{gap:6px}.tabs .btn{font-size:13px;padding:8px 4px}.swipe{display:block}}
+@media (max-width:720px){
+  .wrap{padding-inline:10px;padding-block:10px 20px;gap:12px}
+  body{padding-bottom:calc(76px + env(safe-area-inset-bottom))}
+  .head{padding:8px 12px}
+  .head h1{font-size:1.45rem}
+  .lede{display:none}
+  .searchbar{padding:6px;gap:6px;top:0}
+  .heart .opt,.tabs .opt{display:none}
+  .tabs{position:fixed;left:0;right:0;bottom:0;z-index:40;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;padding:8px 8px calc(8px + env(safe-area-inset-bottom));background:var(--wood-lo);border-top:4px solid var(--wood);box-shadow:0 -4px 0 rgba(0,0,0,.25)}
+  .tabs .btn{font-size:13px;padding:0 2px;min-height:46px}
+  .tabs .btn.only-m{display:block}
+  .swipe{display:block}
+  .swipe.gone{display:none}
+  .ntag{padding:4px 7px 5px;font-size:12px}
+  .pop{position:fixed!important;left:8px!important;right:8px;top:auto!important;bottom:calc(78px + env(safe-area-inset-bottom));width:auto;transform:none!important;max-height:44vh;z-index:35;font-size:15px;padding:12px 14px}
+  .pop .gl{font-size:14px}
+  .pop .x{top:0;right:0;width:46px;height:46px}
+  .grid{grid-template-columns:1fr}
+  .go{padding:9px 12px;font-size:13px}
+  .box{padding:10px}
+  .box h2{font-size:1.15rem}
+}
+@media (min-width:721px){.searchbar{max-width:760px;width:100%;margin-inline:auto}}
 .spacer{flex:1}
-#q{flex:1 1 240px;min-width:0;font:inherit;padding:8px 12px;border:4px solid var(--wood);background:var(--paper);color:var(--ink);box-shadow:inset 3px 3px 0 var(--paper2);border-radius:3px}
+.searchbar{position:sticky;top:0;z-index:30;display:flex;gap:8px;align-items:stretch;padding:8px;background:var(--wood);border:4px solid var(--wood-lo);border-radius:4px;box-shadow:inset 0 0 0 2px var(--wood-hi),0 6px 0 rgba(0,0,0,.3);margin-top:-4px}
+.sfield{position:relative;flex:1;min-width:0;display:flex;align-items:center}
+.sico{position:absolute;left:12px;width:20px;height:20px;color:var(--ink-soft);pointer-events:none}
+#q{width:100%;min-width:0;height:48px;font:400 16px var(--body);padding:0 44px 0 40px;border:3px solid var(--wood-lo);background:var(--paper);color:var(--ink);box-shadow:inset 3px 3px 0 var(--paper2);border-radius:3px;-webkit-appearance:none;appearance:none}
+#q::-webkit-search-cancel-button{display:none}
 #q::placeholder{color:var(--ink-soft)}
+.clr{position:absolute;right:2px;top:2px;width:44px;height:44px;border:0;background:none;color:var(--ink);font:700 26px var(--display);cursor:pointer}
+.heart{min-height:48px;min-width:48px;font-size:18px;padding:0 12px;display:flex;align-items:center;justify-content:center;white-space:nowrap}
+.heart .opt{font-size:14px}
+.heart[aria-pressed="true"]{background:var(--pin);color:#fff;box-shadow:inset 0 -4px 0 #8e2620,3px 3px 0 var(--wood-lo)}
+.results{position:absolute;left:0;right:0;top:100%;margin-top:8px;max-height:min(62vh,calc(100dvh - 170px));overflow:auto;overscroll-behavior:contain;background:var(--paper);border:5px solid var(--wood);box-shadow:inset 0 0 0 3px var(--paper2),6px 8px 0 rgba(0,0,0,.4);border-radius:4px;padding:6px 8px 8px}
+.rhead{font-size:13px;color:var(--ink-soft);padding:4px 4px 6px;font-weight:700}
+.row{display:grid;gap:1px;width:100%;text-align:left;background:#fbeccb;border:3px solid var(--paper2);border-radius:4px;padding:9px 12px;margin-top:6px;font:inherit;color:var(--ink);cursor:pointer;min-height:48px}
+.row:hover,.row:active{background:var(--gold);border-color:var(--wood)}
+.row .rn{font:700 17px var(--display)}
+.row .rm{font-size:13px;color:var(--ink-soft)}
+.row .rg{font-size:13.5px;line-height:1.35}
+.row:hover .rm,.row:active .rm{color:var(--gold-ink)}
+mark{background:var(--gold);color:var(--gold-ink);border-radius:2px;padding:0 2px}
+.row:hover mark,.row:active mark{background:#fff3c4}
+.sugg{display:flex;flex-wrap:wrap;gap:8px;padding:2px 4px 6px}
+.sugg .btn{font-size:14px;padding:8px 12px;min-height:40px}
 button:focus-visible,#q:focus-visible{outline:3px solid var(--gold);outline-offset:3px}
-.count{color:#fff3c4;text-shadow:2px 2px 0 #0e1d27;font-weight:700}
+.tabs .only-m{display:none}
+#mapbox,.ntag{scroll-margin-top:90px}
+.count{color:var(--ink);font-weight:700}
 .mapframe{padding:6px;overflow-x:auto}
 .stage{position:relative;min-width:900px;max-width:100%}
 .stage canvas{position:absolute;inset:0;width:100%;height:100%;image-rendering:pixelated;image-rendering:crisp-edges}
@@ -95,34 +140,41 @@ i{color:var(--ink-soft)}
 </style>
 
 <div class="wrap">
-  <header class="box">
+  <header class="box head">
     <h1>Valley Residents Atlas</h1>
-    <p class="lede">Every villager in Pelican Town, the Expanded valley and Ridgeside Village, shown where they live. Tap a name on the map for loved gifts, or search below.</p>
+    <p class="lede">Every villager in Pelican Town, the Expanded valley and Ridgeside Village, shown where they live. Search a name, home or loved gift, then tap a name on the map for details.</p>
   </header>
 
-  <div class="tabs" role="tablist" aria-label="Choose a map">
-    <button class="btn" role="tab" aria-selected="false" data-map="town">Pelican Town</button>
+  <div class="searchbar" id="searchbar">
+    <div class="sfield">
+      <svg class="sico" viewBox="0 0 20 20" aria-hidden="true"><circle cx="8" cy="8" r="5.5" fill="none" stroke="currentColor" stroke-width="2.4"/><path d="M12.5 12.5 18 18" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/></svg>
+      <input id="q" type="search" enterkeyhint="search" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Search villagers or gifts" aria-label="Search villagers, homes or gifts" aria-controls="results">
+      <button class="clr" id="clr" type="button" aria-label="Clear search" hidden>&times;</button>
+    </div>
+    <button class="btn heart" id="rom" type="button" aria-pressed="false" aria-label="Romanceable villagers only"><span aria-hidden="true">&#9829;</span><span class="opt"> Romanceable</span></button>
+    <div class="results" id="results" role="region" aria-label="Search results" hidden></div>
+  </div>
+
+  <nav class="tabs" role="tablist" aria-label="Choose a map">
+    <button class="btn" role="tab" aria-selected="false" data-map="town"><span class="opt">Pelican </span>Town</button>
     <button class="btn" role="tab" aria-selected="false" data-map="sve">The Valley<span class="opt"> (Expanded)</span></button>
     <button class="btn" role="tab" aria-selected="false" data-map="rsv">Ridgeside<span class="opt"> Village</span></button>
-  </div>
-  <p class="swipe">Swipe the map sideways to see all of it.</p>
+    <button class="btn only-m" type="button" id="tolist">Villagers</button>
+  </nav>
+  <p class="swipe" id="swipe">Swipe the map sideways to see all of it.</p>
 
   <div class="box mapframe" id="mapbox"><div class="stage" id="stage"><canvas id="cv" aria-label="Map of villager homes"></canvas></div></div>
 
-  <section class="box">
+  <section class="box" id="dirbox">
     <div class="dirhead">
       <h2>All villagers</h2>
-      <div class="chips">
-        <button class="btn" data-filter="all" aria-pressed="true">All maps</button>
-        <button class="btn" data-filter="town" aria-pressed="false">Pelican Town</button>
-        <button class="btn" data-filter="sve" aria-pressed="false">Valley</button>
-        <button class="btn" data-filter="rsv" aria-pressed="false">Ridgeside</button>
-        <button class="btn" id="rom" aria-pressed="false">&#9829; Romanceable</button>
-      </div>
+      <span class="count" id="count"></span>
     </div>
-    <div class="controls" style="margin-bottom:12px">
-      <input id="q" type="search" placeholder="Search a villager, home or gift, e.g. Robin or Spaghetti" aria-label="Search villagers, homes or gifts">
-      <span class="count" id="count" style="color:var(--ink);text-shadow:none"></span>
+    <div class="chips" style="margin-bottom:12px">
+      <button class="btn" data-filter="all" aria-pressed="true">All maps</button>
+      <button class="btn" data-filter="town" aria-pressed="false">Pelican Town</button>
+      <button class="btn" data-filter="sve" aria-pressed="false">Valley</button>
+      <button class="btn" data-filter="rsv" aria-pressed="false">Ridgeside</button>
     </div>
     <div class="grid" id="dir"></div>
   </section>
@@ -515,16 +567,30 @@ function render(){
     const tg=h.tg||[0,0];let ax=h.x+tg[0],ay=(h.t==="edge"?h.y:h.y+2)+tg[1];
     Object.assign(el.style,pct(ax,ay));
     el.style.transform=h.t==="edge"?(h.dir==="e"?"translate(-100%,-50%)":"translate(-50%,0)"):h.ta==="r"?"translate(-100%,0)":h.ta==="l"?"translate(0,0)":"translate(-50%,0)";
-    el.addEventListener("click",()=>select(i));stage.appendChild(el);
+    el.addEventListener("click",()=>{select(i);reveal("nearest")});stage.appendChild(el);
   });
   (d.links||[]).forEach(L=>{const el=document.createElement("button");el.className="sign link "+L.dir;el.innerHTML=`<b>${{n:"▲",s:"▼",w:"◀",e:"▶"}[L.dir]} ${esc(L.txt.split(":")[0])}</b><small>${esc(L.txt.split(":")[1]||"")}</small>`;
     Object.assign(el.style,pct(L.x,L.y));el.style.transform={n:"translate(-50%,0)",s:"translate(-50%,-100%)",w:"translate(0,-50%)",e:"translate(-100%,-50%)"}[L.dir];
-    el.addEventListener("click",()=>{switchTo(L.to);const k=DATA[L.to].houses.findIndex(h=>h.n===L.focus);if(k>=0)select(k)});stage.appendChild(el)});
+    el.addEventListener("click",()=>{const k=DATA[L.to].houses.findIndex(h=>h.n===L.focus);switchTo(L.to);if(k>=0)showOn(L.to,k)});stage.appendChild(el)});
   foot.textContent=d.foot;
   document.querySelectorAll("[data-map]").forEach(bn=>bn.setAttribute("aria-selected",bn.dataset.map===cur));
   filter();
 }
 function switchTo(mk){if(mk===cur)return;cur=mk;try{localStorage.setItem("vra-tab2",cur)}catch(e){}render()}
+const phone=matchMedia("(max-width:720px)");
+function reveal(how){
+  const t=stage.querySelector(".ntag.on");if(!t)return;
+  if(!phone.matches){t.scrollIntoView({behavior:reduce?"auto":"smooth",block:how||"center",inline:"center"});return}
+  /* phone: centre the tag in the space between the search bar and the bottom sheet */
+  const beh=reduce?"auto":"smooth",mb=document.getElementById("mapbox"),pop=document.getElementById("pop");
+  const r=t.getBoundingClientRect(),m=mb.getBoundingClientRect();
+  mb.scrollBy({left:r.left+r.width/2-(m.left+mb.clientWidth/2),behavior:beh});
+  const top=searchbar.getBoundingClientRect().bottom+8,bot=pop&&!pop.hidden?pop.getBoundingClientRect().top:innerHeight-80;
+  window.scrollBy({top:r.top+r.height/2-(top+bot)/2,behavior:beh});
+}
+function showOn(mk,i){
+  switchTo(mk);if(sel!==i)select(i);reveal("center");
+}
 function select(i){
   sel=(sel===i)?-1:i;
   stage.querySelectorAll(".ntag").forEach(t=>t.classList.toggle("on",+t.dataset.i===sel));
@@ -532,7 +598,7 @@ function select(i){
   if(sel<0){pop.hidden=true;return}
   const h=DATA[cur].houses[sel];
   const rows=h.p.map(n=>{const g=giftList(n);const nt=GNOTE[base(n)];
-    const txt=g.length?`<span class="lv">Loves:</span> ${esc(g.slice(0,3).join(", "))}${g.length>3?` <i>+${g.length-3} more below</i>`:""}`:(nt?`<i>${esc(nt)}</i>`:"");
+    const txt=g.length?`<span class="lv">Loves:</span> ${esc(g.join(", "))}`:(nt?`<i>${esc(nt)}</i>`:"");
     return `<div class="res"><b class="${isRom(n)?"r":""}">${esc(n)}</b>${txt?`<div class="gl">${txt}</div>`:""}</div>`}).join("");
   pop.innerHTML=`<button class="x" aria-label="Close">&times;</button><h3>${esc(h.n)}</h3><div class="where">${esc(h.w)}</div>${rows}`;
   pop.querySelector(".x").addEventListener("click",()=>select(sel));
@@ -554,11 +620,44 @@ function filter(){
     return `<article class="card"><header><b class="${isRom(p.n)?"r":""}">${esc(p.n)}</b><button class="go" data-mk="${p.mk}" data-i="${p.i}">Show on map</button></header>
     <div class="home">${esc(p.h.n)} · <span>${esc(DATA[p.mk].name)}</span></div>
     <div class="gifts">${g.length?`<span class="lv">Loves:</span> ${esc(g.join(", "))}`:`<i>${esc(nt||"No loved gifts listed")}</i>`}</div></article>`}).join("")||`<p class="empty">No villagers match. Try another name or gift, or turn off Romanceable.</p>`;
-  dir.querySelectorAll(".go").forEach(bn=>bn.addEventListener("click",()=>{switchTo(bn.dataset.mk);select(+bn.dataset.i);document.getElementById("mapbox").scrollIntoView({behavior:reduce?"auto":"smooth",block:"start"})}));
+  dir.querySelectorAll(".go").forEach(bn=>bn.addEventListener("click",()=>showOn(bn.dataset.mk,+bn.dataset.i)));
+  clr.hidden=!q.value;
+  renderResults(v,list);
 }
+/* ---------- search results panel ---------- */
+const results=document.getElementById("results"),clr=document.getElementById("clr"),searchbar=document.getElementById("searchbar");
+let panelOpen=false;
+const hl=(txt,v)=>{if(!v)return esc(txt);const i=txt.toLowerCase().indexOf(v);return i<0?esc(txt):esc(txt.slice(0,i))+"<mark>"+esc(txt.slice(i,i+v.length))+"</mark>"+esc(txt.slice(i+v.length))};
+function setPanel(o){panelOpen=o;renderResults(q.value.trim().toLowerCase())}
+function renderResults(v,list){
+  if(!panelOpen){results.hidden=true;return}
+  if(!v&&!romOn){
+    results.innerHTML=`<div class="rhead">Search by villager, home or loved gift</div><div class="sugg">${["Abigail","Robin","Pierre's","Spaghetti","Pizza","Diamond"].map(t=>`<button class="btn" type="button" data-s="${esc(t)}">${esc(t)}</button>`).join("")}</div>`;
+    results.hidden=false;return}
+  list=list||PEOPLE.filter(p=>matches(p,v));
+  const rows=list.map(p=>{const g=giftList(p.n);
+    const gifts=g.length?`<span class="rg"><b>Loves:</b> ${g.map(x=>v&&x.toLowerCase().includes(v)?hl(x,v):esc(x)).join(", ")}</span>`:"";
+    return `<button class="row" type="button" data-mk="${p.mk}" data-i="${p.i}"><span class="rn ${isRom(p.n)?"r":""}">${hl(p.n,v)}</span><span class="rm">${hl(p.h.n,v)} · ${esc(DATA[p.mk].name)}</span>${gifts}</button>`}).join("");
+  results.innerHTML=`<div class="rhead">${list.length?`${list.length} match${list.length===1?"":"es"}. Tap one to find it on the map.`:"No villagers match. Try another name or gift."}</div>${rows}`;
+  results.hidden=false;
+}
+results.addEventListener("click",e=>{
+  const sg=e.target.closest("[data-s]");if(sg){q.value=sg.dataset.s;filter();q.focus();return}
+  const r=e.target.closest(".row");if(!r)return;
+  panelOpen=false;results.hidden=true;q.blur();showOn(r.dataset.mk,+r.dataset.i);
+});
+q.addEventListener("focus",()=>setPanel(true));
+q.addEventListener("keydown",e=>{
+  if(e.key==="Escape"){setPanel(false);q.blur()}
+  if(e.key==="Enter"){const r=results.querySelector(".row");if(r)r.click();else q.blur()}
+});
+clr.addEventListener("click",()=>{q.value="";filter();q.focus()});
+document.addEventListener("pointerdown",e=>{if(panelOpen&&!searchbar.contains(e.target))setPanel(false)});
+document.getElementById("tolist").addEventListener("click",()=>document.getElementById("dirbox").scrollIntoView({behavior:reduce?"auto":"smooth",block:"start"}));
+document.getElementById("mapbox").addEventListener("scroll",()=>document.getElementById("swipe").classList.add("gone"),{once:true,passive:true});
 document.querySelectorAll("[data-map]").forEach(bn=>bn.addEventListener("click",()=>switchTo(bn.dataset.map)));
 document.querySelectorAll("[data-filter]").forEach(bn=>bn.addEventListener("click",()=>{mapFilter=bn.dataset.filter;document.querySelectorAll("[data-filter]").forEach(x=>x.setAttribute("aria-pressed",x===bn));filter()}));
-q.addEventListener("input",filter);
+q.addEventListener("input",()=>{if(!panelOpen)panelOpen=true;filter()});
 document.getElementById("rom").addEventListener("click",e=>{romOn=!romOn;e.currentTarget.setAttribute("aria-pressed",romOn);filter()});
 render();
 if(!reduce)setInterval(()=>{tick++;compose()},450);
